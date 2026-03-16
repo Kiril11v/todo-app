@@ -1,0 +1,107 @@
+@import "tailwindcss";
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  color-scheme: light dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark-theme,
+.dark-theme html body {
+  --bg: #1d1d1d;
+  --text: white;
+  --border-color: white;
+  /* icon-theme */
+  --lamp-pouring: #FFC600;
+  /* btn save */
+  --btn-save-bg: #15803d;
+  --btn-save-hover: #66d558;
+  --btn-save-text: white;
+  --btn-save-text-hover: black;
+  /* settings */
+  --btn-text-archive: #e5e7eb;
+  /* btn-sub */
+  --btn-sub-text: white;
+  --btn-sub-background: black;
+  --btn-sub-border: white 1px solid;
+  --btn-sub-hover-text: black;
+  --btn-sub-hover-background: white;
+  /* done-icon */
+  --icon-done: #24b764;
+  /* btn-archive-send */
+  --btn-send-archive: white;
+}
+
+.light-theme,
+.light-theme html body {
+  --bg: rgb(201, 201, 201); 
+  --text: black;
+  --border-color: black;
+  /* icon-theme */
+  --lamp-pouring: #D9CDC1;
+  /* btn save */
+  --btn-save-bg: rgb(0, 176, 0);
+  --btn-save-hover: green; 
+  --btn-save-text: black;
+  --btn-save-text-hover: white;
+  /* settings */
+  --btn-text-archive: #1C274C;
+  /* btn-sub */
+  --btn-sub-text: black;
+  --btn-sub-background: white;
+  --btn-sub-border: black 1px solid;
+  --btn-sub-hover-text: white;
+  --btn-sub-hover-background: black;
+  /* done-icon */
+  --icon-done: black;
+  /* btn-archive-send */
+  --btn-send-archive: gray;
+}
+
+html, body { 
+  background-color: var(--bg);
+  color: var(--text); 
+}
+
+body {
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+  margin-top: 90px;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.break-words-hyphens { 
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.sekuya-regular {
+  font-family: "Sekuya", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sekuya-regular:lang(uk) { 
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
+}
+
+.ubuntu-regular {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+

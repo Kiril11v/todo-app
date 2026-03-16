@@ -1,0 +1,22 @@
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 25px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 8px;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background-color: #374151;
+}
+
+.lang-pl .nav-item {
+  font-size: 14px;
+}
+
+ul {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}

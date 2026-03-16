@@ -1,0 +1,86 @@
+.task-style{
+ width: 100%;
+}
+
+.style-btn-delete { 
+  transition: 
+  background-color 0.25s ease,
+  border-color 0.25s ease,
+  transform 0.15s ease;
+}
+
+.style-btn-delete:hover {
+    transform: scale(1.1);
+}
+
+.style-btn-delete:active {
+    transform: scale(0.95);
+}
+
+.btn-send-archive{
+  color: var(--btn-send-archive);
+}
+
+.popup-overplay{
+  overflow: hidden;
+  position: fixed;
+  top: 25px;
+  right: 15px;
+  z-index: 999;
+}
+
+.popup-overplay::after { 
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 4px;
+  width: 0%;
+  animation: fillTimer 5s linear forwards;
+  background: rgb(96, 96, 94);
+}
+
+.popup-overplay-restore::after {
+  background: rgb(255, 136, 0);
+}
+
+@keyframes fillTimer {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.popup-btn-archive{
+  background: rgb(96, 96, 94);
+  width: auto;
+}
+
+.popup-btn-archive:hover{
+  border: 4px solid rgb(81, 81, 79);
+  background-color: rgb(62, 62, 57);
+  color: white;
+}
+
+.popup-archive-border{
+  border: 3px solid rgb(81, 81, 79);
+}
+
+.popup-btn-restore{
+  background: rgb(255, 136, 0);
+  width: auto;
+}
+
+.popup-btn-restore:hover{
+  border: 4px solid rgb(255, 136, 0);
+  background-color: rgb(255, 225, 0);
+}
+
+.popup-restore-tasks{
+  border: 3px solid rgb(222, 137, 0);
+}
+
+.done-border{
+  border-color: var(--border-color);
+}
+
+.done-icon{
+  color: var(--icon-done);
+}
