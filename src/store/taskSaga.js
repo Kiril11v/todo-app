@@ -24,6 +24,8 @@ import {
   restoreArchiveSuccess
 } from "./taskSlice";
 
+import { clearSubtasksForTask } from "./subtasksSlice";
+
 function saveToLocalStorage(tasks, completedTasks, archivedTasks) {
   localStorage.setItem("tasksState", JSON.stringify({ tasks, completedTasks, archivedTasks }));
 }
@@ -104,8 +106,12 @@ function* clearArchiveTaskSaga() {
 }
 
 function* restoreArchiveTaskSaga(action) {
-  yield put(restoreArchiveSuccess(action.payload));
+  const id = action.payload;
 
+  yield put(restoreArchiveSuccess(id));
+
+  yield put(clearSubtasksForTask(id));
+  
   const state = yield select(s => s.tasks);
   saveToLocalStorage(state.tasks, state.completedTasks, state.archivedTasks);
 }

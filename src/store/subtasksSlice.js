@@ -21,13 +21,19 @@ const subtasksSlice = createSlice({
 
             state.completed[taskId][index] = 
                 !state.completed[taskId][index];
+        },
+
+        clearSubtasksForTask: (state, action) => {
+            const taskId = action.payload;
+            delete state.completed[taskId];
         }
     }
 });
 
 export const {
     toggleSubtaskRequest,
-    toggleSubtaskSuccess
+    toggleSubtaskSuccess,
+    clearSubtasksForTask
 } = subtasksSlice.actions;
 
 export default subtasksSlice.reducer;
