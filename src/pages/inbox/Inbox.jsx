@@ -10,6 +10,7 @@ import addSubtaskIcon from "../../assets/add-subTask-icon.svg";
 import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
+import { useTaskValidation } from "../../hooks/useTaskValidation";
 import "./Inbox.css"
 
 function Inbox() {
@@ -25,26 +26,7 @@ function Inbox() {
     const t = translations[language];
 
     // validation
-    const validateTask = useCallback((value) => {
-        if(!value?.trim()) return t.validateTaskEmpty;
-        if(value.length < 5) return t.validateTaskMin5Characters;
-        if(value.length > 50) return t.validateTaskMax50Characters;
-    }, [
-            t.validateTaskEmpty,
-            t.validateTaskMin5Characters,
-            t.validateTaskMax50Characters
-        ]
-    );
-        
-    const validateSubtask = useCallback((value) => {
-        if (!value?.trim()) return undefined;
-        if (value.length < 5) return t.validateTaskMin5Characters;
-        if (value.length > 50) return t.validateTaskMax50Characters;
-    }, [
-            t.validateTaskMin5Characters,
-            t.validateTaskMax50Characters
-        ]
-    );
+    const { validateTask, validateSubtask } = useTaskValidation(t);
 
     // timer click btn
     const withDelay = useCallback(
@@ -132,7 +114,7 @@ function Inbox() {
                                     <div className="relative flex items-center justify-center">
                                         <div className="mt-1 top-1 absolute">
                                             {meta.error && meta.submitFailed && (
-                                                <span className="text-red-500">{meta.error}</span>
+                                                <span className="text-red-500">{t[meta.error]}</span>
                                             )}
                                         </div>
                                     </div>

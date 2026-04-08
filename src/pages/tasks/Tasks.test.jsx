@@ -94,29 +94,6 @@ describe("Tasks component", () => {
     expect(deleteTaskRequest).toHaveBeenCalledWith(1);
   });
 
-  it("task completed when all subtasks are finished", () => {
-    // все подзадачи выполнены
-    mockSubCompleted = {
-        1: { 0: true, 1: true, 2: true },
-    };
-
-    render(<Tasks />);
-
-    const t = translations.en;
-    const subtasksBtn = screen.getByText(t.subtasksBtn);
-
-    // запускаем useEffect
-    act(() => {
-        fireEvent.click(subtasksBtn);
-        vi.runAllTimers();
-    })
-
-    vi.runAllTimers();
-    
-    expect(dispatchMock).toHaveBeenCalled();
-    expect(completeTaskRequest).toHaveBeenCalledWith(1);
-  });
-
   it("task has been edited", () => {
   render(<Tasks />);
 

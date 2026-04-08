@@ -1,6 +1,7 @@
 import { Field } from "react-final-form";
 
 function SubtaskField({ name, index, fields, validateSubtask, t, withDelay }) {
+    
     return (
         <div className="mb-5">
             <Field name={`${name}.title`} validate={validateSubtask}>
@@ -17,7 +18,7 @@ function SubtaskField({ name, index, fields, validateSubtask, t, withDelay }) {
                         <div className="flex justify-center items-center relative mb-3">
                             <div className="absolute">
                                 {meta.error && meta.submitFailed && (
-                                    <span className="text-red-500">{meta.error}</span>
+                                    <span className="text-red-500">{t[meta.error]}</span>
                                 )}
                             </div>
                         </div>
