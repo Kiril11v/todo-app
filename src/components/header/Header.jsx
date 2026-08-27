@@ -9,6 +9,7 @@ import IconArrowLeftSwipe from "../../icons/IconArrowLeftSwipe";
 import IconArrowRightSwipe from "../../icons/IconArrowRightSwipe";
 import logoIcon from "../../assets/logo-todo.svg";
 import IconSettings from "../../icons/IconSettings";
+
 import "./header.css";
 
 function Header({ onPrev, onNext, canGoPrev, canGoNext }) {

@@ -2,7 +2,7 @@ import { memo } from "react";
 
 import ButtonDelete from "../buttonDelete/ButtonDelete.jsx";
 
-import IconSaveToArchive from "../../icons/iconSaveToArchive";
+import IconSaveToArchive from "../../icons/IconSaveToArchive";
 import IconImageTask from "../../icons/IconImageTask";
 
 function TaskDoneItem({

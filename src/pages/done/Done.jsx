@@ -17,9 +17,6 @@ import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
 
-import IconSaveToArchive from "../../icons/IconSaveToArchive";
-import IconImageTask from "../../icons/IconImageTask";
-
 import "./done.css"
 
 const ARCHIVE_ANIMATION_MS = 600;

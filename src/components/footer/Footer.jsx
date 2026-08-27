@@ -11,6 +11,7 @@ import IconLinkedIn from "../../icons/IconLinkedIn";
 import IconGmail from "../../icons/IconGmail";
 import IconTelegram from "../../icons/IconTelegram";
 import IconLogo from "../../icons/IconLogo"
+
 import "./footer.css";
 
 function Footer() {
