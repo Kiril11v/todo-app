@@ -17,7 +17,7 @@ import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
 
-import IconSaveToArchive from "../../icons/iconSaveToArchive";
+import IconSaveToArchive from "../../icons/IconSaveToArchive";
 import IconImageTask from "../../icons/IconImageTask";
 
 import "./done.css"
