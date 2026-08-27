@@ -9,7 +9,7 @@ import "react-calendar/dist/Calendar.css";
 import "./timerCreateTasks.css"
 
 import IconClockActive from "../../icons/IconClockActive";
-import IconClockInactive from "../../icons/iconClockInactive";
+import IconClockInactive from "../../icons/IconClockInactive";
 
 import {formatDeadline, toDateInputValue } from "../../utils/deadline";
 
