@@ -17,7 +17,7 @@ import { useImageAttachment } from "../../hooks/useImageAttachment";
 import PopupCreated from "../../components/popupCreated/PopupCreated"
 import PopupLimit from "../../components/popupLimit/PopupLimit"
 import SubtaskField from "../../components/subtaskField/SubtaskField";
-import TimerCreateTasks from "../../components/timerCreateTasks/timerCreateTasks";
+import TimerCreateTasks from "../../components/timerCreateTasks/TimerCreateTasks";
 import ImagePreview from "../../components/imagePreview/ImagePreview";
 
 import addSubtaskIcon from "../../assets/add-subTask-icon.svg";

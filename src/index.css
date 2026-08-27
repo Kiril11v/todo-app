@@ -120,11 +120,11 @@ body::after {
 }
 
 body::before {
-  background-image: url("./assets/bg-black-theme.jpg");
+  background-image: url("./assets/bg-black-theme.webp");
 }
 
 body::after {
-  background-image: url("./assets/bg-white-theme.jpg");
+  background-image: url("./assets/bg-white-theme.webp");
 }
 
 .dark-theme body::before { opacity: 0.15; }

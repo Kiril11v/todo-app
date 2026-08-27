@@ -6,9 +6,12 @@
 
     <script>
       (function() {
-        const theme = localStorage.getItem("theme");
-        const cls = theme === "light" ? "light-theme" : "dark-theme";
-        document.documentElement.classList.add(cls);
+        var theme = localStorage.getItem("theme");
+        if (theme !== "light" && theme !== "dark") {
+          var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+          theme = prefersLight ? "light" : "dark";
+        }
+        document.documentElement.classList.add(theme + "-theme");
       })();
     </script>
 

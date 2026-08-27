@@ -1,8 +1,8 @@
 function IconLogo () {
     return (
-        <svg width="35px" height="35px" viewBox="0 -13 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" fill="var(--text)" stroke="var(--text)">
-        <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="35px" height="35px" viewBox="0 -13 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" fill="var(--text)" stroke="var(--text)">
+        <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
+        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
         <g id="SVGRepo_iconCarrier"> <g> <path d="M34.404,15.29 L57.951,15.29 L57.951,0 L34.404,0 C27.882,0 21.533,1.835 16.041,5.306 L24.211,18.231 C27.254,16.307 30.779,15.29 34.404,15.29 L34.404,15.29 Z M15.29,34.404 C15.29,31.61
         15.877,28.922 17.034,26.413 L3.148,20.012 C1.059,24.542 0,29.384 0,34.404 L0,61.468 L15.29,61.468 L15.29,34.404 L15.29,34.404 Z M0,76.911 L15.29,76.911 L15.29,115.443 L0,115.443 L0,76.911 Z M205.901,18.717 C210.511,15.798
         215.105,13.04 219.654,10.46 C217.054,7.782 214.021,5.522 210.713,3.815
