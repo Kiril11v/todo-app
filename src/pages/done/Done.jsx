@@ -20,7 +20,7 @@ import { translations } from "../../context/translations";
 import IconSaveToArchive from "../../icons/iconSaveToArchive";
 import IconImageTask from "../../icons/IconImageTask";
 
-import "./Done.css"
+import "./done.css"
 
 const ARCHIVE_ANIMATION_MS = 600;
 const POPUP_DURATION_MS = 3000;

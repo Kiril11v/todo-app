@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { loadTasksRequest } from './store/taskSlice';
 
-import './App.css';
+import './app.css';
 import 'simplebar-react/dist/simplebar.min.css';
 
 function App() {

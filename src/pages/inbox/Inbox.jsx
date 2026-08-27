@@ -22,7 +22,7 @@ import ImagePreview from "../../components/imagePreview/ImagePreview";
 
 import addSubtaskIcon from "../../assets/add-subTask-icon.svg";
 import IconAttachImage from "../../icons/IconAttachImage";
-import "./Inbox.css"
+import "./inbox.css"
 
 const POPUP_DURATION_MS = 3000;
 const MAX_TASKS = 20;
