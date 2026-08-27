@@ -14,7 +14,7 @@ import ButtonDelete from "../buttonDelete/ButtonDelete";
 
 import IconClosePlus from "../../icons/IconClosePlus";
 
-import './SubtasksModal.css'
+import './subtasksModal.css'
 
 const CLOSE_ANIMATION_CLASS = 'closingModal';
 const CLOSE_ANIMATION_MS = 350;
