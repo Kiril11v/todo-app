@@ -1,230 +1,283 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useCallback } from "react";
-import { completeTaskRequest, deleteTaskRequest, editTaskRequest } from "../../store/taskSlice";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
+
+import {completeTaskRequest, deleteTaskRequest, editTaskRequest } from "../../store/taskSlice";
 import { toggleSubtaskRequest } from "../../store/subtasksSlice";
-import { useFixedHeightEdit } from "../../hooks/useFixedHeightEdit";
-import SubtasksModal from "../../components/subtasksModal/SubtasksModal";
-import PopupCompleted from "../../components/popupCompleted/PopupCompleted";
-import IconRecycleBin from "../../icons/IconRecycleBin";
+
+import { useTaskValidation } from "../../hooks/useTaskValidation";
+import { useDeleteTask } from "../../hooks/useDeleteTask.js";
+
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
-import { useTaskValidation } from "../../hooks/useTaskValidation";
-import IconRename from "../../icons/IconRename";
-import "./Tasks.css"
+
+import { isTaskFailed } from "../../utils/deadline";
+
+import TaskItem from "../../components/taskItem/TaskItem.jsx";
+import ModalImage from "../../components/modalImage/ModalImage";
+import SubtasksModal from "../../components/subtasksModal/SubtasksModal";
+import PopupCompleted from "../../components/popupCompleted/PopupCompleted";
+import PopupDoneLimit from "../../components/popupDoneLimit/PopupDoneLimit";
+import FailedTasksPanel from "../../components/failedTasksPanel/FailedTasksPanel";
+
+import "./tasks.css"
+
+const DONE_ANIMATION_MS = 600;
+const POPUP_DURATION_MS = 3000;
+const DONE_LIMIT = 15;
 
 function Tasks() {
     const dispatch = useDispatch();
-    // redux state
-    const listTasks = useSelector((s) => s.tasks.tasks || []);
-    const subCompletedMap = useSelector(s => s.subtasks.completed);
+
+    const rawTasks = useSelector((s) => s.tasks?.tasks);
+    const listTasks = useMemo(
+        () => (rawTasks ?? []).filter((task) => task?.id != null),
+        [rawTasks]
+    );
+
+    const subtasksByTaskId = useSelector((s) => s.subtasks.byTaskId);
+    const completedTasksCount = useSelector((s) => s.tasks.completedTasks.length);
      
     const [selectedTaskId, setSelectedTaskId] = useState(null);
-
-    const selectedTask = useSelector(
-        s => s.tasks.tasks.find(t => t.id === selectedTaskId) || null
+    const selectedTask = useMemo(
+        () => listTasks.find((t) => t.id === selectedTaskId) ?? null,
+        [listTasks, selectedTaskId]
     );
-    // local ui state
-    const [taskEditingId, setTaskEditingId] = useState(null);
-    const [editValue, setEditValue] = useState("");
-    const [editError, setEditError] = useState({ id: null, message: null });
-    const [closeTimerPopupCompleted, setCloseTimerPopupCompleted] = useState(null);
-    const [showCompletedPopup, setShowCompletedPopup] = useState(false);
-    const [isOpenSubModal, setIsOpenSubModal] = useState(false);
-    const { fixedHeight, lockHeight, unlockHeight } = useFixedHeightEdit();
+    
+    const subtasksData = subtasksByTaskId[selectedTaskId] ?? null;
+    const [checkMarkId, setCheckMarkId] = useState(null);
+    const [popup, setPopup] = useState(null);
+    const [pendingCompletedId, setPendingCompletedId] = useState(null);
+    const [nowTime, setNowTime] = useState(() => new Date());
 
+    const [isOpenSubModal, setIsOpenSubModal] = useState(false);
+    const [openImage, setOpenImage] = useState(null);
+    const [isFailedTasksOpen, setIsFailedTasksOpen] = useState(false);
+    
+    const { activeTasks, failedTasks } = useMemo(() => {
+        const active = [];
+        const failed = [];
+        for (const task of listTasks ) {
+            (isTaskFailed(task, nowTime) ? failed : active).push(task);
+        }
+        return { activeTasks: active, failedTasks: failed };
+    }, [listTasks, nowTime]);
+
+    // the time updates when the user comes back for deadline
+    useEffect(() => {
+        const handleVisibility = () => {
+            if (document.visibilityState === "visible") {
+                setNowTime(new Date());
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibility);
+        return () => document.removeEventListener("visibilitychange", handleVisibility);
+    }, []);
+
+    const isMountedRef = useRef(true);
+    useEffect(() => () => { isMountedRef.current = false; }, []);
+
+    const toggleTimerRef = useRef(null);
+    useEffect(() => () => {
+        if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
+    }, []);
+
+    // language
     const { language } = useLanguage();
     const t = translations[language];
 
     // validation
     const { validateTask, validateSubtask } = useTaskValidation(t);
 
-    // Edit task
-    const startEdit = useCallback((task) => {
-        lockHeight(`task-${task.id}`);
-        setTaskEditingId(task.id);
-        setEditValue(task.title);
-    }, []);
-
-    const finishEdit = useCallback(() => {
-        unlockHeight();
-
-        const errorKey = validateTask(editValue)
-        if (errorKey) {
-            setEditError({ id: taskEditingId, message: errorKey });
-            setTaskEditingId(null);
-
-            setTimeout(() => setEditError({ id: null, message: null }), 2000);
-            return;
-        }
-
-        dispatch(editTaskRequest({ id: taskEditingId, newText: editValue }));
-        setTaskEditingId(null);
-        setEditError({ id: null, message: null });
-    }, [editValue, taskEditingId, validateTask, dispatch])
-    
-    const cancelEdit = () => {
-        setTaskEditingId(null);
-        setEditValue("");
-    };
+    // subtask completed
+    const toggleSubtask = useCallback((taskId, subtaskId) => {
+        if (String(subtaskId).includes("_sub_") && String(subtaskId).startsWith("temp_")) return;
+        dispatch(toggleSubtaskRequest({ taskId, subtaskId }));
+    }, [dispatch]);
 
     // open modal
-    const openSubtasks = (taskId) => {
+    const openSubtasks = useCallback((taskId) => {
         setSelectedTaskId(taskId);
         setIsOpenSubModal(true);
-    };
+    }, []);
 
     // close modal
-    const onClose = () => {
+    const onClose = useCallback(() => {
         setSelectedTaskId(null);
         setIsOpenSubModal(false);
-    }
-
-    // subtask completed
-    const toggleSubtask = (taskId, index) => {
-        dispatch(toggleSubtaskRequest({ taskId, index }));
-    };
+    }, []);
 
     // task completed
-    const toggleTask = (taskId) => {
-        dispatch(completeTaskRequest(taskId));
-        setShowCompletedPopup(true);
+    const toggleTask = useCallback((taskId) => {
+        if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
 
-        if (closeTimerPopupCompleted) clearTimeout(closeTimerPopupCompleted);
+        setCheckMarkId(taskId);
+        toggleTimerRef.current = setTimeout(() => {
+            if (!isMountedRef.current) {
+                toggleTimerRef.current = null;
+                return;
+            }
 
-        const timer = setTimeout(() => {
-            setShowCompletedPopup(false);
-            setCloseTimerPopupCompleted(null);
-        }, 5000);
+            dispatch(completeTaskRequest(taskId));
+            toggleTimerRef.current = null;
+            setCheckMarkId(null);
+            setPopup("completed");
+        }, DONE_ANIMATION_MS);
+    }, [dispatch]);
 
-        setCloseTimerPopupCompleted(timer);
-    }
+    // task edit
+    const handleSaveEdit = useCallback((taskId, newTitle) => {
+        dispatch(editTaskRequest({ id: taskId, newText: newTitle }));
+    }, [dispatch]);
+
+    // delete Task
+    const { requestDelete, isLocked, isDeletingItem } = useDeleteTask(
+        (id) => dispatch(deleteTaskRequest(id))
+    );
+
+    // done limit popup
+    const doneLimitTask = useCallback((taskId) => {
+        if (completedTasksCount.length >= DONE_LIMIT) {
+            setPendingCompletedId(taskId);
+            setPopup("doneLimit");
+            return;
+        }
+        toggleTask(taskId);
+    }, [completedTasksCount.length, toggleTask]);
+
+    const handleDoneLimitConfirm = useCallback(() => {
+        setPopup(null);
+        toggleTask(pendingCompletedId);
+        setPendingCompletedId(null);
+    }, [toggleTask, pendingCompletedId]);
+
+    const handleDoneLimitClose = useCallback(() => {
+        setPopup(null);
+        setPendingCompletedId(null);
+    }, []);
+
+    // timer popup
+    useEffect(() => {
+        if (popup !== "completed") return;
+
+        const timerPopup = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
+
+        return() => clearTimeout(timerPopup);
+    }, [popup]);
+
+    // cleans scrolling while showing popup doneLimit
+    useEffect(() => {
+        if (popup === "doneLimit") {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [popup]);
+
+    // close subModal if not subtasks
+    useEffect(() => {
+        if (!selectedTaskId) return;
+
+        const subtasks = subtasksByTaskId[selectedTaskId];
+
+        if (subtasks && subtasks.items && subtasks.items.length === 0) {
+            onClose();
+        }
+    }, [subtasksByTaskId, selectedTaskId, onClose]);
+
+    const handleOpenImage = useCallback((src) => setOpenImage(src), []);
+    const handleCloseImage = useCallback(() => setOpenImage(null), []);
+
+    const handleOverlayClick = useCallback(() => {
+        if (popup === "doneLimit") {
+            handleDoneLimitClose();
+        } else {
+            setPopup(null);
+        }
+    }, [popup, handleDoneLimitClose]);
 
     return (
         <div className="ubuntu-regular">
-
-            {showCompletedPopup && (
+            {/* popups */}
+            {(popup) && (
                 <>
-                    <div onClick={() => setShowCompletedPopup(false)} />
-                    <PopupCompleted onClose={() => setShowCompletedPopup(false)} />
+                    <div 
+                    className="fixed inset-0 bg-black/40 z-40"
+                    onClick={handleOverlayClick} 
+                    />
+
+                    {popup === "doneLimit" && (
+                        <PopupDoneLimit 
+                            onConfirm={handleDoneLimitConfirm}
+                            onClose={handleDoneLimitClose} 
+                        />
+                    )}
+                    {popup ==="completed" && (
+                        <PopupCompleted onClose={() => setPopup(null)} />
+                    )}
                 </>
             )}
-
-            <h1 
+            <h1
             lang={language === "ua" ? "uk" : "en"}
             className="sekuya-regular mb-5 text-4xl sm:text-5xl"
             >
                 {t.tasks}
             </h1>
 
-            {listTasks.length === 0 && <p>{t.taskText}</p>}
+            {activeTasks.length === 0 && <p>{t.taskText}</p>}
 
             <ul className="flex flex-col">
-                {listTasks.map((task, index) => {
-                    // counter 0/3
-                    const subState = subCompletedMap[task.id] || [];
-                    const completedCount = Object.values(subState).filter(Boolean).length;
-                    const totalCount = task.subtasks.length || 0;
-
-                    return (
-                        <li 
-                        id={`task-${task.id}`} 
-                        style={taskEditingId === task.id ? { height: fixedHeight } : {}} 
-                        key={task.id} 
-                        className="p-3 border rounded-md min-h-19 relative task-border"
-                        >
-                            <div className="flex justify-between items-start">
-                                <label className="flex items-center space-x-3 cursor-pointer">
-                                    {/* checkbox */}
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => setTimeout(() => toggleTask(task.id), 200)}
-                                        className="peer sr-only"
-                                    />
-                                    <span className="style-btn w-7 h-7 border-2 border-green-500 rounded-md flex items-center justify-center
-                                    transition-all duration-200 peer-checked:bg-green-500 peer-checked:border-green-500">
-                                        <svg className="hidden peer-checked:block w-3 h-3 text-white"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </span>
-                                </label>
-
-                                {/* task inline edit */}
-                                <div className="mx-2 flex gap-2 place-items-start w-full">
-                                    <span>{index + 1}.</span>
-
-                                    {taskEditingId === task.id ? (
-                                        <textarea 
-                                        autoFocus
-                                        className={`rounded-md input-edit edit-expand ${taskEditingId === task.id ? "active" : ""}`}
-                                        value={editValue}
-                                        onChange={(e) => setEditValue(e.target.value)}
-                                        onBlur={finishEdit}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") finishEdit();
-                                            if (e.key === "Escape") cancelEdit();
-                                        }}
-                                        />
-                                    
-                                    ) : (   // task
-                                        <h3 onDoubleClick={() => startEdit(task)} className="break-words-hyphens text-left">
-                                            {task.title}
-                                        </h3>
-                                    )}
-                                </div>
-
-                                {/* btn rename */}
-                                <div className="flex gap-3">
-                                    <button className="style-btn" onClick={() => startEdit(task)}>
-                                        <IconRename />
-                                    </button>
-                                    {/* btn delete */}
-                                    <button className="style-btn" onClick={() => dispatch(deleteTaskRequest(task.id))}>
-                                        <IconRecycleBin/>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex justify-center flex-col items-center relative right-4">
-                                <div className="flex justify-center items-center relative mb-2">
-                                    {/* error */}
-                                    {editError.id === task.id && (
-                                        <p className="text-red-500 text-sm absolute top-1 mt-1 whitespace-nowrap shrink-0">{t[editError.message]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-3 justify-center items-center my-3">
-                                    {/* counter */}
-                                    { totalCount > 0 && (
-                                    <p className="mt-3 text-gray-600">
-                                    {completedCount}/{totalCount}
-                                    </p>
-                                    )}
-                                    {/* btn subtasks */}
-                                    {task.subtasks?.length > 0 && (
-                                    <button onClick={() => setTimeout(() => openSubtasks(task.id),  200)}
-                                    className="mt-3 px-3 py-1 rounded-lg transition sub-btn">
-                                        {t.subtasksBtn}
-                                    </button>
-                                    )}
-                                </div> 
-                            </div>
-                        </li>
-                    );
-                })}
+                {activeTasks.map((task, index) => (
+                    <TaskItem
+                        key={task.id}
+                        task={task}
+                        index={index}
+                        t={t}
+                        checkMarkId={checkMarkId}
+                        onToggleComplete={doneLimitTask}
+                        validateTask={validateTask}
+                        onOpenImage={handleOpenImage}
+                        onOpenSubtasks={openSubtasks}
+                        onDeleteTask={requestDelete}
+                        isLocked={isLocked}
+                        isDeletingItem={isDeletingItem}
+                        onSaveEdit={handleSaveEdit}
+                    />
+                ))}
             </ul>
+
+            <ModalImage src={openImage} onClose={handleCloseImage} />
+
+            {failedTasks.length > 0 && createPortal (
+                <button
+                    onClick={() => setIsFailedTasksOpen(true)}
+                    className="fixed bottom-6 right-6 z-30 rounded-full bg-red-600 px-4 py-2 text-sm text-black shadow-lg hover:bg-red-700 ubuntu-regular"
+                >
+                    {t.btnFailed} ({failedTasks.length})
+                </button>,
+                document.body
+            )}
+
             <SubtasksModal
                 isOpen={isOpenSubModal}
                 onClose={onClose}
                 selectedTask={selectedTask}
-                subCompletedMap={subCompletedMap}
+                subtasksData={subtasksData}
                 toggleSubtask={toggleSubtask}
                 t={t}
                 validateSubtask={validateSubtask}
-            />  
+            />
+
+            <FailedTasksPanel 
+                failedTasks={failedTasks}
+                t={t}
+                isOpen={isFailedTasksOpen}
+                onClose={() => setIsFailedTasksOpen(false)}
+            />
         </div>
     )
 }

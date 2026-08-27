@@ -1,0 +1,30 @@
+.bin-icon {
+    transform-origin: 50% 15%; /* точка вращения — верх ведра, у крышки */
+}
+
+.bin-icon.is-shaking {
+    animation: bin-shake 0.5s ease-in-out;
+}
+
+@keyframes bin-shake {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(-12deg); }
+    30% { transform: rotate(10deg); }
+    45% { transform: rotate(-8deg); }
+    60% { transform: rotate(6deg); }
+    75% { transform: rotate(-4deg); }
+    90% { transform: rotate(2deg); }
+}
+
+/* опционально: отдельно "дёргаем" крышку сильнее, будто она приоткрывается */
+.bin-icon.is-shaking .bin-lid {
+    animation: bin-lid-pop 0.5s ease-in-out;
+    transform-origin: 20% 100%;
+}
+
+@keyframes bin-lid-pop {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    20% { transform: rotate(-10deg) translateY(-4px); }
+    50% { transform: rotate(6deg) translateY(-2px); }
+    80% { transform: rotate(-3deg) translateY(0); }
+}

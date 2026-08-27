@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
@@ -21,6 +21,7 @@
     "framer-motion": "^12.23.24",
     "motion": "^12.23.24",
     "react": "^19.1.1",
+    "react-calendar": "^6.0.1",
     "react-dom": "^19.1.1",
     "react-final-form": "^7.0.0",
     "react-final-form-arrays": "^4.0.0",
@@ -29,8 +30,11 @@
     "react-router-dom": "^7.9.4",
     "react-select": "^5.10.2",
     "react-swipeable": "^7.0.2",
+    "react-timer-hook": "^4.0.6",
     "redux-saga": "^1.4.2",
+    "redux-saga-thunk": "^0.7.3",
     "sass": "^1.93.2",
+    "simplebar-react": "^3.3.2",
     "swiper": "^12.0.3",
     "use-device-detect": "^1.0.2",
     "zustand": "^5.0.7"

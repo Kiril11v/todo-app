@@ -7,13 +7,8 @@ function PopupSaveToArchive ({ onClose }) {
     const { language } = useLanguage();
     const t = translations[language];
 
-    const goToArchive = () => {
-        onClose();
-        navigate("/archive");
-    }
-
     return (
-        <div className="popup-overplay popup-archive-border rounded-xl bg-gray-400 text-black"
+        <div className="popup-overplay popup-overplay-archive rounded-xl bg-gray-400 text-black"
         onClick={onClose}>
             <div className="popup-window p-4"
             onClick={(e) => e.stopPropagation()}
@@ -22,7 +17,10 @@ function PopupSaveToArchive ({ onClose }) {
                 <p className="my-1 whitespace-pre-line">{t.popupSaveToArchiveText}</p>
                 <button
                     className="popup-btn popup-btn-archive btn-style"
-                    onClick={goToArchive}
+                    onClick={() => {
+                        onClose();
+                        navigate("/archive");
+                    }}
                 >
                     {t.popupSaveToArchiveBtn}
                 </button>

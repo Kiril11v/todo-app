@@ -1,0 +1,23 @@
+.footer-border{
+    border-color: var(--text);
+}
+
+.footer-item{
+    display: inline-block;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--text);
+    transition: transform 0.15s ease;
+}
+
+.footer-item:hover{
+    transform: scale(1.10);
+}
+
+.footer-item:active{
+    transform: scale(0.95);
+}
+
+.footer-wrap{
+    margin-top: 10px;
+}

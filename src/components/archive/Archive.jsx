@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState, useCallback } from "react";
 import {
     restoreArchiveRequest,
     deleteArchiveTaskRequest,
@@ -6,108 +7,117 @@ import {
 } from "../../store/taskSlice";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
+
+import { useDeleteTask } from "../../hooks/useDeleteTask";
+
+import TaskArchiveItem from "../taskArchiveItem/TaskArchiveItem";
+import PopupLimit from "../popupLimit/PopupLimit";
 import PopupRestoreTask from "../popupRestoreTask/PopupRestoreTask";
-import RestoreButtonIcon from "../../icons/IconRestoreButton"
-import IconRecycleBin from "../../icons/IconRecycleBin";
-import { useEffect, useState, useCallback } from "react";
+import ModalImage from "../modalImage/ModalImage";
+
 import "./archive.css"
+
+const RESTORE_ANIMATION_MS = 600;
+const POPUP_DURATION_MS = 3000;
+const MAX_TASKS = 20;
 
 export default function Archive() {
     const dispatch = useDispatch();
     const archivedTasks = useSelector(s => s.tasks.archivedTasks);
+    const tasksCount = useSelector(s => s.tasks.tasks.length);
+    const subtasksByTaskId = useSelector(s => s.subtasks.byTaskId);
+
+    const [popup, setPopup] = useState(null);
+    const [restoringAnimationId, setRestoringAnimationId] = useState(null);
+    const [openImage, setOpenImage] = useState(null);
 
     // language
     const { language } = useLanguage();
     const t = translations[language];
 
-    const [showPopupRestore, setShowPopupRestore] = useState(false);
-
+    // restore tasks 
     const handleRestore = useCallback((id) => {
         dispatch(restoreArchiveRequest(id));
-        setShowPopupRestore(true);
+        setPopup("restore");
     }, [dispatch]);
 
-    const handleDelete = useCallback((id) => {
-        dispatch(deleteArchiveTaskRequest(id));
-    }, [dispatch]);
-
+    // clear tasks
     const handleClearArchive = useCallback(() => {
         dispatch(clearArchiveRequest())
     }, [dispatch]);
 
-    useEffect(() => {
-        if (!showPopupRestore) return;
+    // delete Task
+    const { requestDelete, isLocked, isDeletingItem } = useDeleteTask(
+        (id) => dispatch(deleteArchiveTaskRequest(id))
+    );
 
-        const timer = setTimeout(() => setShowPopupRestore(false), 5000);
+    // animation
+    const handleRestoreClick = useCallback((id) => {
+        if(tasksCount >= MAX_TASKS) {
+            setPopup("limit");
+            return;
+        };
+
+        setRestoringAnimationId(id);
+        setTimeout(() => {
+            setRestoringAnimationId(null);
+            handleRestore(id);
+        }, RESTORE_ANIMATION_MS);
+    }, [tasksCount, handleRestore]);
+
+    // timer popups
+    useEffect(() => {
+        if (!popup) return;
+
+        const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
         return () => clearTimeout(timer);
-    }, [showPopupRestore]);
+    }, [popup]);
 
     return (
         <div className="ubuntu-regular">
 
-            {showPopupRestore && (
+            {popup && (
                 <>
                     <div
                         className="fixed inset-0 bg-black/40 z-40"
-                        onClick={() => setShowPopupRestore(false)}
+                        onClick={() => setPopup(null)}
                     />
-                    <PopupRestoreTask onClose={() => setShowPopupRestore(false)} />
+                    {popup === "limit" && <PopupLimit onClose={() => setPopup(null)} />}
+                    {popup === "restore" && <PopupRestoreTask onClose={() => setPopup(null)} />}
                 </>
             )}
 
             <h2 
             lang={language === "ua" ? "uk" : "en"}
-            className="sekuya-regular mb-5 text-3xl sm:text-5xl">{t.archive}</h2>
+            className="sekuya-regular text-3xl sm:text-5xl">{t.archive}</h2>
 
             {archivedTasks.length === 0 && <p>{t.archiveText}</p>}
 
             <ul className="flex flex-col mt-4">
                 {archivedTasks.map((task, index) => (
-                    <li
-                    key={task.id}
-                    className="border text-left rounded-md p-3 archive-border"
-                    >
-                        <div className="flex justify-between items-start gap-2">
-                            <div>
-                                <span className=" text-left pr-1 ">{index + 1}.</span><span className="break-words-hyphens">{task.title}</span>
-                            </div>
-                            <div className="flex justify-center items-center gap-2 mb-3 relative">
-                                {/* restore btn */}
-                                <button className="style-btn" onClick={() => handleRestore(task.id)}>
-                                    <RestoreButtonIcon />
-                                </button>
-                                {/* btn delete */}
-                                <button onClick={() => handleDelete(task.id)}
-                                    className="style-btn p-0">
-                                    <IconRecycleBin />
-                                </button>
-                                {task.completedAt && (
-                                    <div className="absolute right-0 top-8 sm:right-20 sm:top-1.5">
-                                        <p className="text-sm text-gray-600">{new Date(task.completedAt).toLocaleDateString("pl-PL")}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {task.subtasks?.length > 0 && (
-                        <>
-                            <h6 className="sekuya-regular">{t.archiveSubtasks}</h6>
-                            <ul>
-                                {task.subtasks.map((sub, i) => (
-                                    <li key={i} className="break-words-hyphens flex gap-2"><span>✔</span><span>{sub.title}</span></li>
-                                ))}
-                            </ul>
-                        </>
-                        )}
-                    </li>
+                    <TaskArchiveItem
+                        key={task.id}
+                        task={task}
+                        index={index}
+                        subtasks={subtasksByTaskId[task.id]}
+                        t={t}
+                        isRestoring={restoringAnimationId === task.id}
+                        onRestore={handleRestoreClick}
+                        onOpenImage={setOpenImage}
+                        isLocked={isLocked}
+                        isDeleting={isDeletingItem(task.id)}
+                        onDelete={requestDelete}
+                    />
                 ))}
             </ul>
+
+            <ModalImage src={openImage} onClose={() => setOpenImage(null)} />
 
             {archivedTasks.length > 0 && (
                 <div className="flex justify-end">
                     {/* btn clear */}
                     <button onClick={handleClearArchive}
-                        className="text-red-60 mt-5 px-7 py-3 rounded-lg error-border cursor-pointer"
+                        className="text-red-60 mt-5 mr-2 px-7 py-3 rounded-lg error-border cursor-pointer"
                     >
                         {t.archiveClearBtn}
                     </button>

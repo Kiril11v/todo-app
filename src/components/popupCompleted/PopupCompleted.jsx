@@ -8,15 +8,18 @@ function CompletedPopup ({ onClose }) {
     const t = translations[language];
 
     return (
-        <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center"
+        <div className="popup-overlay-completed rounded-xl bg-green-100 text-green-700"
         onClick={onClose}> 
-            <div className="popup-window relative bottom-40 right-2  popup-overlay-completed popup-completed-border rounded-xl bg-green-100 text-green-700 " 
+            <div className="popup-window p-4" 
             onClick={(e) => e.stopPropagation()}
             >
                 <p className="text-lg font-bold">{t.popupCompletedTitle}</p>
                 <button
-                className="popup-btn popup-btn-tasks-completed btn-style"
-                onClick={() => navigate("/done")}
+                className="popup-btn-tasks-completed btn-style"
+                onClick={() => {
+                    onClose()
+                    navigate("/done")
+                }}
                 >
                     {t.popupCompletedBtn}
                 </button>

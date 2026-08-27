@@ -1,0 +1,95 @@
+.closeIconPlus-btn {
+    padding: 2px;
+    border-radius: 6px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
+    
+}
+
+.closeIconPlus-btn:hover {
+    transform: scale(1.1);
+}
+
+.closeIconPlus-btn.closingModal {
+    transform: scale(0.95);
+    animation: rotateScale 0.35s ease;
+}
+
+@keyframes rotateScale {
+  0% {
+    transform:  rotate(0deg);
+  }
+  
+  100% {
+    transform:  rotate(90deg);
+  }
+}
+
+.closeModal-btn{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); transition: box-shadow 0.2s ease;
+    transition: background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.closeModal-btn:hover{
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    background-color: white;
+    color: black;
+}
+
+.closeModal-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.list-item-subtask{
+    border-radius: 2rem;
+}
+
+.panel-block-subtask{
+  background: rgba(155, 154, 154, 0.448);
+  color: #ffffff;
+  border-radius: 2rem;
+  padding: 0.9rem 1.1rem;
+  box-shadow:
+    -6px 0px 10px rgba(110, 95, 95, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-card-subtask {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#101010, #303030) padding-box,
+    linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a) border-box;
+}
+
+.glow-card-subtask-done{
+    border: 2px solid green;
+    
+}
+
+.glow-panel-subtask{
+  border-left: 1px solid rgba(202, 162, 74, 0.6);
+  box-shadow: -8px 0 24px rgba(202, 162, 74, 0.15);
+}
+
+.subtasks-scroll-fade {
+  -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}

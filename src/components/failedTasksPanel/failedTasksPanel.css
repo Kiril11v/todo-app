@@ -1,0 +1,48 @@
+.panel-block{
+  background: linear-gradient(180deg, black 0%, rgba(255, 255, 255, 0.448) 100%);
+  color: #ffffff;
+  border-radius: 2rem;
+  padding: 0.9rem 1.1rem;
+  box-shadow:
+    -6px 0px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-card {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+    linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a) border-box;
+  box-shadow: 0 0 12px rgba(202, 162, 74, 0.35);
+}
+
+.glow-panel{
+  border-left: 1px solid rgba(202, 162, 74, 0.6);
+  box-shadow: -8px 0 24px rgba(202, 162, 74, 0.15);
+}
+
+.icon-gold{
+  color: #caa24a;
+}
+
+.failed-tasks-scroll-fade{
+  -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black 20px,
+        black calc(100% - 20px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black 20px,
+        black calc(100% - 20px),
+        transparent 100%
+    );
+    overflow-y: auto;
+    
+    max-height: calc(100vh - 130px);
+}

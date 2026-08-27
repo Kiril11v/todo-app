@@ -1,3 +1,5 @@
+import PopupDoneLimit from "../components/popupDoneLimit/PopupDoneLimit";
+
 export const translations = {
     
     en: { 
@@ -6,7 +8,9 @@ export const translations = {
         newTask: "new task...",
         clear: "Clear",
         save: "Save",
-        subtask: "Subtask (optional)",
+        timer: "Timer",
+        subtask: "Subtask",
+        image: "image",
         deleteSubtask: "Delete subtask",
         subtaskPlaceholder: (i) => `subtask ${i}...`,
         validateTaskEmpty: "the field cannot be empty",
@@ -16,8 +20,9 @@ export const translations = {
         popupCreatedText: "Your task was added successfully",
         popupCreatedBtn: "Go to tasks",
         popupLimitTitle: "task limit reached",
-        popupLimitText: "limit 15 tasks",
+        popupLimitText: "limit 20 tasks",
         popupLimitBtn: "Go to tasks",
+        date_title: "Date",
         //tasks
         tasks: "Tasks",
         taskText: "No tasks",
@@ -26,6 +31,14 @@ export const translations = {
         modalSubtasksBtn: "Close",
         popupCompletedTitle: "Task completed!",
         popupCompletedBtn: "Go to done",
+        popupDoneLimitTitle: "Done is full!",
+        popupDoneLimitText: "The oldest completed task will be moved to archive.",
+        popupDoneLimitConfirm: "OK",
+        popupDoneLimitCancel: "Cancel",
+        btnFailed: "failed",
+        deadlineTasks: "deadline",
+        failedTasksTitle: "Failed tasks",
+        deadlineFailedTasks: "deadline was",
         //done
         done: "Done",
         doneText: "No completed tasks",
@@ -34,6 +47,11 @@ export const translations = {
         popupSaveToArchiveTitle: "Task archived!",
         popupSaveToArchiveText: "The task was moved to archive",
         popupSaveToArchiveBtn: "Go to archive",
+        popupArchiveLimitTitle: "Archive is full!",
+        popupArchiveLimitText: "The oldest archived task will be deleted.",
+        popupArchiveLimitConfirm: "OK",
+        popupArchiveLimitCancel: "Cancel",
+        dateCompletedTask: "completed",
         //archive
         archive: "Archive",
         archiveText: "No archived tasks",
@@ -41,7 +59,8 @@ export const translations = {
         archiveClearBtn: "Clear",
         popupRestoreTaskTitle: "Task restored",
         popupRestoreTaskText: "The task has been successfully\nreturned to the task list",
-        popupRestoreTaskBtn: "Go to tasks!"
+        popupRestoreTaskBtn: "Go to tasks!",
+        dateArchivedTask: "archived",
     }, 
     ua: {
         //inbox
@@ -49,7 +68,9 @@ export const translations = {
         newTask: "нова задача...",
         clear: "Очистити",
         save: "Зберегти",
-        subtask: "Підзадача (необов'язково)",
+        timer: "Таймер",
+        subtask: "Підзадача",
+        image: "Зображення",
         deleteSubtask: "Видалити підзадачу",
         subtaskPlaceholder: (i) => `підзадача ${i}...`,
         validateTaskEmpty: "поле не може бути порожнім",
@@ -59,8 +80,9 @@ export const translations = {
         popupCreatedText: "Ваше завдання успішно додано",
         popupCreatedBtn: "Перейти до завдань",
         popupLimitTitle: "Досягнуто ліміту завдань",
-        popupLimitText: "обмеження 15 завдань",
+        popupLimitText: "обмеження 20 завдань",
         popupLimitBtn: "Перейти до завдань!",
+        date_title: "Дата",
         //tasks
         tasks: "Задачі",
         taskText: "Завдань немає",
@@ -69,6 +91,14 @@ export const translations = {
         modalSubtasksBtn: "Закрити",
         popupCompletedTitle: "Завдання виконано!",
         popupCompletedBtn: "Перейти до виконаних",
+        popupDoneLimitTitle: "Виконані переповнені!",
+        popupDoneLimitText: "Найстаріше завершене завдання буде переміщено до архіву.",
+        popupDoneLimitConfirm: "OK",
+        popupDoneLimitCancel: "Скасувати",
+        btnFailed: "провалені",
+        deadlineTasks: "термін",
+        failedTasksTitle: "Провалені завдання",
+        deadlineFailedTasks: "термін був",
         //done
         done: "Виконані",
         doneText: "Немає виконаних завдань",
@@ -77,6 +107,11 @@ export const translations = {
         popupSaveToArchiveTitle: "Завдання архівовано!",
         popupSaveToArchiveText: "Завдання переміщено до архіву",
         popupSaveToArchiveBtn: "Перейти до архіву",
+        popupArchiveLimitTitle: "Архів переповний!",
+        popupArchiveLimitText: "Найстаріше архівне завдання буде видалено.",
+        popupArchiveLimitConfirm: "OK",
+        popupArchiveLimitCancel: "Скасувати",
+        dateCompletedTask: "виконано",
         //archive
         archive: "Архів",
         archiveText: "Немає архівованих завдань",
@@ -84,7 +119,8 @@ export const translations = {
         archiveClearBtn: "Очистити",
         popupRestoreTaskTitle: "Завдання відновлено",
         popupRestoreTaskText: "Завдання успішно повернено\nдо списку завдань",
-        popupRestoreTaskBtn: "Перейти до завдань!"
+        popupRestoreTaskBtn: "Перейти до завдань!",
+        dateArchivedTask: "архівовано",
     },
     pl: {
         //inbox
@@ -92,7 +128,9 @@ export const translations = {
         newTask: "nowe zadanie...",
         clear: "Wyczyść",
         save: "Zapisz",
-        subtask: "Podzadanie (opcjonalnie)",
+        timer: "Timer",
+        subtask: "Podzadanie",
+        image: "obraz",
         deleteSubtask: "Usuń podzadanie",
         subtaskPlaceholder: (i) => `podzadanie ${i}...`,
         validateTaskEmpty: "pole nie może być puste",
@@ -102,8 +140,9 @@ export const translations = {
         popupCreatedText: "Twoje zadanie zostało dodane",
         popupCreatedBtn: "Przejdź do zadań",
         popupLimitTitle: "osiągnięto limit zadań",
-        popupLimitText: "limit 15 zadań",
+        popupLimitText: "limit 20 zadań",
         popupLimitBtn: "Przejdź do zadań",
+        date_title: "Data",
         //tasks
         tasks: "Zadania",
         taskText: "Brak zadań",
@@ -112,6 +151,14 @@ export const translations = {
         modalSubtasksBtn: "Zamknąć",
         popupCompletedTitle: "Zadanie ukończone!",
         popupCompletedBtn: "Przejdź do wykonanych",
+        popupDoneLimitTitle: "Wykonane jest pełne!",
+        popupDoneLimitText: "Najstarsze ukończone zadanie zostanie przeniesione do archiwum.",
+        popupDoneLimitConfirm: "OK",
+        popupDoneLimitCancel: "Anuluj",
+        btnFailed: "przeterminowane",
+        deadlineTasks: "termin",
+        failedTasksTitle: "Nieudane zadania",
+        deadlineFailedTasks: "termin był",
         //done
         done: "Wykonane",
         doneText: "Brak ukończonych zadań",
@@ -120,6 +167,11 @@ export const translations = {
         popupSaveToArchiveTitle: "Zadanie zarchiwizowane!",
         popupSaveToArchiveText: "Zadanie zostało\nprzeniesione do archiwum",
         popupSaveToArchiveBtn: "Przejdź do archiwum",
+        popupArchiveLimitTitle: "Archiwum jest pełne!",
+        popupArchiveLimitText: "Najstarsze zarchiwizowane zadanie zostanie usunięte.",
+        popupArchiveLimitConfirm: "OK",
+        popupArchiveLimitCancel: "Anuluj",
+        dateCompletedTask: "wykonane",
         //archive
         archive: "Archiwum",
         archiveText: "Brak zarchiwizowanych zadań",
@@ -127,6 +179,7 @@ export const translations = {
         archiveClearBtn: "Wyczyść",
         popupRestoreTaskTitle: "Zadanie zostało przywrócone",
         popupRestoreTaskText: "Zadanie pomyślnie wróciło\nna listę zadań",
-        popupRestoreTaskBtn: "Przejdź do zadań!"
+        popupRestoreTaskBtn: "Przejdź do zadań!",
+        dateArchivedTask: "zarchiwizowane",
     }
 }
