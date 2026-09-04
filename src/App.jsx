@@ -1,6 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useTheme } from './context/ThemeContext';
+
+import { Route, Routes } from 'react-router-dom';
 
 import Header from './components/header/Header';
 import Inbox from './pages/inbox/Inbox';
@@ -9,19 +9,19 @@ import Done from './pages/done/Done';
 import Archive from './components/archive/Archive';
 import Footer from './components/footer/Footer';
 
-import { usePageTransition, pageVariants, getPageTransition } from './hooks/usePageTransition';
+import { useEmblaRouter } from './hooks/useEmblaRouter';
+import { useEmblaAutoHeight } from './hooks/useEmblaAutoHeight';
 
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { loadTasksRequest } from './store/taskSlice';
 
 import './app.css';
-import 'simplebar-react/dist/simplebar.min.css';
 
 function App() {
-    const { theme } = useTheme();
     const dispatch = useDispatch();
-    const { location, direction, swipeHandlers, goNext, goPrev, canGoPrev, canGoNext } = usePageTransition();
+    const { emblaApi, emblaRef, goNext, goPrev, canGoPrev, canGoNext } = useEmblaRouter();
+    const height = useEmblaAutoHeight(emblaApi);
 
     useEffect(() => {
         dispatch(loadTasksRequest());
@@ -29,29 +29,28 @@ function App() {
 
     return (
         <>
-            <Header  onPrev={goPrev} onNext={goNext} canGoPrev={canGoPrev} canGoNext={canGoNext}/>
-            <div style={{position: 'relative', overflow: 'hidden' }} {...swipeHandlers}>
-                <AnimatePresence mode="popLayout" custom={direction}>
-                    <motion.div
-                        key={location.pathname}
-                        custom={direction}
-                        variants={pageVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={getPageTransition(direction)}
-                        style={{ width: '100%' }} 
-                    >
-                        <Routes location={location}>
-                            <Route index element={<Inbox />} />
-                            <Route path='/tasks' element={<Tasks />} />
-                            <Route path='/done' element={<Done />} />
-                            <Route path="/archive" element={<Archive />} />
-                        </Routes>
-                    </motion.div>
-                </AnimatePresence>
-
-            </div>
+            <Header onPrev={goPrev} onNext={goNext} canGoPrev={canGoPrev} canGoNext={canGoNext} />
+            <Routes>
+                <Route 
+                    path='/archive'
+                    element={<Archive />}
+                />
+                <Route 
+                    path='*'
+                    element={
+                        <div className="embla app-wrapper"
+                            ref={emblaRef}
+                            style={height ? { height: `${height}px` } : undefined}
+                            >
+                                <div className="embla__container">
+                                    <div className="embla__slide"><Inbox /></div>
+                                    <div className="embla__slide"><Tasks /></div>
+                                    <div className="embla__slide"><Done /></div>
+                                </div>
+                            </div>
+                    }
+                />
+            </Routes>
             <Footer />
         </>
     );

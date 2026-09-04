@@ -56,7 +56,7 @@ export default function ModalSettings({ openArchive, toggleTheme, theme }) {
 			<div ref={wrapperRef} className="relative" onClick={handleClick}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}>
-					<div>
+					<div className="sekuya-regular" lang="en">
 						<div
 						className="cursor-pointer rounded-md bg-black text-white py-2 px-3 border border-white"
 						>

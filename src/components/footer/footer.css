@@ -21,3 +21,7 @@
 .footer-wrap{
     margin-top: 10px;
 }
+
+.text-color-footer{
+    color: var(--text-color)
+}

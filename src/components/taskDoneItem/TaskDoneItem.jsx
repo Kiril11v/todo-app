@@ -18,7 +18,7 @@ function TaskDoneItem({
     isDeleting,
 }) {
     return (
-        <li className="border-2 rounded-lg flex flex-col p-4 pl-1 shadow-sm space-y-1 done-border relative">
+        <li className="border-2 flex flex-col p-4 pl-1 shadow-sm space-y-1 done-border relative">
             <div className="flex justify-between items-start mt-2 lg:mt-0">
                 <div className="flex flex-col gap-2">
                     <div className="flex">

@@ -11,7 +11,7 @@ function SubtaskField({ name, index, fields, validateSubtask, onRemove, t }) {
                         <input
                             {...input}
                             type="text"
-                            className="bg-amber-300 input-style my-5 subtask-style"
+                            className="input-style my-5 subtask-style"
                             autoComplete="off"
                             placeholder={t.subtaskPlaceholder(number)}
                         />

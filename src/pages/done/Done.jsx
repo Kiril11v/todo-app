@@ -11,6 +11,7 @@ import PopupArchiveLimit from "../../components/popupArchiveLimit/PopupArchiveLi
 import ModalImage from "../../components/modalImage/ModalImage"
 import ButtonDelete from "../../components/buttonDelete/ButtonDelete.jsx";
 import TaskDoneItem from "../../components/taskDoneItem/TaskDoneItem.jsx";
+import Portal from "../../components/portal/Portal.jsx";
 
 import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 
@@ -34,8 +35,6 @@ function Done() {
     const [archivingAnimationId, setArchivingAnimationId] = useState(null);
     const [openImage, setOpenImage] = useState(null);
 
-    const archiveTimeoutRef = useRef(null);
-
     // language
     const { language } = useLanguage();
     const t = translations[language];
@@ -49,13 +48,15 @@ function Done() {
         return () => clearTimeout(timer);
     }, [popup]);
 
+    // prevent duplicate dispatch on rapid double-click
+    const archiveTimeoutRef = useRef(null);
     useEffect(() => {
         return () => {
             if (archiveTimeoutRef.current) clearTimeout(archiveTimeoutRef.current);
         };
     }, []);
 
-    // dispatches task and archiving, shows popup
+    // dispatch task in archive
     const handleArchive = useCallback(
         (id) => {
             dispatch(archiveTaskRequest(id));
@@ -68,6 +69,7 @@ function Done() {
     const runArchiveWithAnimation = useCallback(
         (id) => {
             if (archiveTimeoutRef.current) clearTimeout(archiveTimeoutRef.current);
+
             setArchivingAnimationId(id);
             archiveTimeoutRef.current = setTimeout(() => {
                 handleArchive(id);
@@ -116,7 +118,7 @@ function Done() {
         <div className="ubuntu-regular">
             {/* popups */}
             {popup && (
-                <>
+                <Portal>
                     <div
                     className="fixed inset-0 bg-black/40 z-40"
                     onClick={() => {
@@ -137,11 +139,10 @@ function Done() {
                     {popup === "saveToArchive" && (
                         <PopupSaveToArchive onClose={() => setPopup(null)} />
                     )}
-                </>
+                </Portal>
             )}
 
             <h1 
-            lang={language === "ua" ? "uk" : "en"}
             className={`sekuya-regular mb-5 ${language === "pl" ? "text-2xl sm:text-5xl" : "text-4xl sm:text-5xl"}`}
             >
                 {t.done}

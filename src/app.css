@@ -1,6 +1,31 @@
 #root {
-  width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 1280px;
+  width: 100%;
   text-align: center;
+  margin: 0 auto;
+  margin-top: 90px;
+  box-sizing: border-box;
+  color: var(--text-color);
+}
+
+#portal-root{
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 600;
+}
+
+.embla {
+  overflow: hidden;
+  width: 100%;
+  transition: height 0.35s ease;
+  min-height: 75vh;
+}
+.embla__container {
+  display: flex;
+  align-items: flex-start;
+}
+.embla__slide {
+  padding: 2rem;
+  min-width: 0;
+  flex: 0 0 100%;
+  box-sizing: border-box;
 }

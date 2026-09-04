@@ -22,11 +22,11 @@ function Footer() {
 
     return (
         <footer>
-                <ul className="flex sm:flex-row flex-col items-center justify-center gap-4 mt-3">
+                <ul className="text-color-footer flex sm:flex-row flex-col items-center justify-center gap-4 mt-3">
                     <li>
                         <NavLink className="flex items-center gap-1 hover:scale-105 transition-transform" to="/" state={{ instant: true }}>
                             <IconLogo />
-                            <span className="font-semibold text-[var(--text)]">ToDo</span>
+                            <span className="font-semibold">ToDo</span>
                         </NavLink>
                     </li>
                     <li>

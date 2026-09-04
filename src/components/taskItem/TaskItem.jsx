@@ -29,8 +29,6 @@ function TaskItem({
     const [editValue, setEditValue] = useState(task.title);
     const { fixedHeight, lockHeight, unlockHeight } = useFixedHeightEdit();
 
-    const isSavingRef = useRef(false);
-
     // helper for start edit
     const handleStartEdit = () => {
         lockHeight(`task-${task.id}`);
@@ -47,8 +45,7 @@ function TaskItem({
     };
     // helper for validation and save edit task 
     const handleSaveEdit = () => {
-        if (!isEditing || isSavingRef.current) return;
-        isSavingRef.current = true;
+        if (!isEditing) return;
         
         unlockHeight();
 
@@ -58,14 +55,12 @@ function TaskItem({
             setEditError({ id: task.id, message: errorKey });
             setIsEditing(false);
             setTimeout(() => setEditError({ id: null, message: null }), 2000);
-            isSavingRef.current = false;
             return;
         }
 
         onSaveEdit(task.id, editValue.trim());
         setIsEditing(false);
         setEditError({ id: null, message: null });
-        isSavingRef.current = false;
     }
 
     const taskSub = useSelector((s) => s.subtasks.byTaskId[task.id]);

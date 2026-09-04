@@ -5,6 +5,7 @@ import { deleteTaskRequest } from "../../store/taskSlice";
 import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 
 import ButtonDelete from "../../components/buttonDelete/ButtonDelete.jsx";
+import Portal from "../portal/Portal.jsx";
 
 import IconRecycleBin from "../../icons/IconRecycleBin";
 import IconClockFailedTasks from "../../icons/IconClockFailedTasks";
@@ -13,6 +14,8 @@ import IconClosePlus from "../../icons/IconClosePlus";
 import './failedTasksPanel.css'
 
 function FailedTasksPanel({ failedTasks, t, isOpen, onClose }) {
+   
+
     const dispatch = useDispatch();
 
     const [deletingAnimationId, setDeletingAnimationId] = useState(null);
@@ -23,9 +26,10 @@ function FailedTasksPanel({ failedTasks, t, isOpen, onClose }) {
     );
 
     return (
-        <>
+        <Portal>
             <div
-                className="fixed inset-y-0 right-0 z-50 w-73 glow-panel panel-block shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-73 glow-panel panel-block shadow-xl ubuntu-regular"
+                inert={!isOpen}
                 style={{
                     transition: "opacity 300ms ease-out, transform 300ms ease-out",
                     opacity: isOpen ? 1 : 0,
@@ -72,7 +76,7 @@ function FailedTasksPanel({ failedTasks, t, isOpen, onClose }) {
                 }}
                 onClick={onClose}
             />
-        </>
+        </Portal>
     );
 }
 

@@ -16,7 +16,7 @@ export default function TaskArchiveItem({
     onDelete,
 }) {
     return (
-        <li className="border-2 text-left rounded-md p-3 archive-border relative">
+        <li className="border-2 text-left p-3 archive-border relative">
             <div className="flex justify-between items-start gap-2">
                 <div>
                     <div className="mt-3 lg:m-0">

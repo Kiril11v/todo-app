@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
     restoreArchiveRequest,
     deleteArchiveTaskRequest,
@@ -14,6 +14,7 @@ import TaskArchiveItem from "../taskArchiveItem/TaskArchiveItem";
 import PopupLimit from "../popupLimit/PopupLimit";
 import PopupRestoreTask from "../popupRestoreTask/PopupRestoreTask";
 import ModalImage from "../modalImage/ModalImage";
+import Portal from "../portal/Portal";
 
 import "./archive.css"
 
@@ -35,6 +36,14 @@ export default function Archive() {
     const { language } = useLanguage();
     const t = translations[language];
 
+    // prevent duplicate dispatch on rapid double-click
+    const restoreTimerRef = useRef(null);
+    useEffect(() => {
+        return () => {
+            if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+        }
+    }, [])
+
     // restore tasks 
     const handleRestore = useCallback((id) => {
         dispatch(restoreArchiveRequest(id));
@@ -51,16 +60,19 @@ export default function Archive() {
         (id) => dispatch(deleteArchiveTaskRequest(id))
     );
 
-    // animation
+    // trigger restore animation
     const handleRestoreClick = useCallback((id) => {
         if(tasksCount >= MAX_TASKS) {
             setPopup("limit");
             return;
         };
 
+        if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+
         setRestoringAnimationId(id);
-        setTimeout(() => {
+        restoreTimerRef.current = setTimeout(() => {
             setRestoringAnimationId(null);
+            restoreTimerRef.current = null;
             handleRestore(id);
         }, RESTORE_ANIMATION_MS);
     }, [tasksCount, handleRestore]);
@@ -74,22 +86,22 @@ export default function Archive() {
     }, [popup]);
 
     return (
-        <div className="ubuntu-regular">
+        <div className="ubuntu-regular p-8">
 
             {popup && (
-                <>
+                <Portal>
                     <div
                         className="fixed inset-0 bg-black/40 z-40"
                         onClick={() => setPopup(null)}
                     />
                     {popup === "limit" && <PopupLimit onClose={() => setPopup(null)} />}
                     {popup === "restore" && <PopupRestoreTask onClose={() => setPopup(null)} />}
-                </>
+                </Portal>
             )}
 
             <h2 
-            lang={language === "ua" ? "uk" : "en"}
-            className="sekuya-regular text-3xl sm:text-5xl">{t.archive}</h2>
+                className="sekuya-regular text-3xl sm:text-5xl">{t.archive}
+            </h2>
 
             {archivedTasks.length === 0 && <p>{t.archiveText}</p>}
 

@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 
@@ -19,6 +20,7 @@ import SubtasksModal from "../../components/subtasksModal/SubtasksModal";
 import PopupCompleted from "../../components/popupCompleted/PopupCompleted";
 import PopupDoneLimit from "../../components/popupDoneLimit/PopupDoneLimit";
 import FailedTasksPanel from "../../components/failedTasksPanel/FailedTasksPanel";
+import Portal from "../../components/portal/Portal.jsx";
 
 import "./tasks.css"
 
@@ -47,7 +49,6 @@ function Tasks() {
     const subtasksData = subtasksByTaskId[selectedTaskId] ?? null;
     const [checkMarkId, setCheckMarkId] = useState(null);
     const [popup, setPopup] = useState(null);
-    const [pendingCompletedId, setPendingCompletedId] = useState(null);
     const [nowTime, setNowTime] = useState(() => new Date());
 
     const [isOpenSubModal, setIsOpenSubModal] = useState(false);
@@ -63,7 +64,7 @@ function Tasks() {
         return { activeTasks: active, failedTasks: failed };
     }, [listTasks, nowTime]);
 
-    // the time updates when the user comes back for deadline
+    // refresh deadline time when tab regains visibility
     useEffect(() => {
         const handleVisibility = () => {
             if (document.visibilityState === "visible") {
@@ -74,17 +75,21 @@ function Tasks() {
         return () => document.removeEventListener("visibilitychange", handleVisibility);
     }, []);
 
-    const isMountedRef = useRef(true);
-    useEffect(() => () => { isMountedRef.current = false; }, []);
-
+    // prevent duplicate dispatch on rapid double-click
     const toggleTimerRef = useRef(null);
-    useEffect(() => () => {
-        if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
+    useEffect(() => {
+        return () => {
+            if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
+        };
     }, []);
 
     // language
     const { language } = useLanguage();
     const t = translations[language];
+
+    // location for btn failed
+    const location = useLocation();
+    const isActive = location.pathname === '/tasks';
 
     // validation
     const { validateTask, validateSubtask } = useTaskValidation(t);
@@ -113,11 +118,6 @@ function Tasks() {
 
         setCheckMarkId(taskId);
         toggleTimerRef.current = setTimeout(() => {
-            if (!isMountedRef.current) {
-                toggleTimerRef.current = null;
-                return;
-            }
-
             dispatch(completeTaskRequest(taskId));
             toggleTimerRef.current = null;
             setCheckMarkId(null);
@@ -135,47 +135,20 @@ function Tasks() {
         (id) => dispatch(deleteTaskRequest(id))
     );
 
-    // done limit popup
+    // done limit
     const doneLimitTask = useCallback((taskId) => {
-        if (completedTasksCount.length >= DONE_LIMIT) {
-            setPendingCompletedId(taskId);
+        if (completedTasksCount >= DONE_LIMIT) {
             setPopup("doneLimit");
             return;
         }
         toggleTask(taskId);
-    }, [completedTasksCount.length, toggleTask]);
-
-    const handleDoneLimitConfirm = useCallback(() => {
-        setPopup(null);
-        toggleTask(pendingCompletedId);
-        setPendingCompletedId(null);
-    }, [toggleTask, pendingCompletedId]);
-
-    const handleDoneLimitClose = useCallback(() => {
-        setPopup(null);
-        setPendingCompletedId(null);
-    }, []);
+    }, [completedTasksCount, toggleTask]);
 
     // timer popup
     useEffect(() => {
-        if (popup !== "completed") return;
-
-        const timerPopup = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
-
-        return() => clearTimeout(timerPopup);
-    }, [popup]);
-
-    // cleans scrolling while showing popup doneLimit
-    useEffect(() => {
-        if (popup === "doneLimit") {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-
-        return () => {
-            document.body.style.overflow = "";
-        };
+        if (!popup) return;
+        const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
+        return() => clearTimeout(timer);
     }, [popup]);
 
     // close subModal if not subtasks
@@ -192,74 +165,60 @@ function Tasks() {
     const handleOpenImage = useCallback((src) => setOpenImage(src), []);
     const handleCloseImage = useCallback(() => setOpenImage(null), []);
 
-    const handleOverlayClick = useCallback(() => {
-        if (popup === "doneLimit") {
-            handleDoneLimitClose();
-        } else {
-            setPopup(null);
-        }
-    }, [popup, handleDoneLimitClose]);
-
     return (
         <div className="ubuntu-regular">
             {/* popups */}
-            {(popup) && (
-                <>
+            {popup && (
+                <Portal>
                     <div 
-                    className="fixed inset-0 bg-black/40 z-40"
-                    onClick={handleOverlayClick} 
+                        className="fixed inset-0 bg-black/40 z-40"
+                        onClick={() => setPopup(null)} 
                     />
-
-                    {popup === "doneLimit" && (
-                        <PopupDoneLimit 
-                            onConfirm={handleDoneLimitConfirm}
-                            onClose={handleDoneLimitClose} 
-                        />
-                    )}
-                    {popup ==="completed" && (
-                        <PopupCompleted onClose={() => setPopup(null)} />
-                    )}
-                </>
+                    {popup === "doneLimit"  && <PopupDoneLimit onClose={() => setPopup(null)} />}
+                    {popup ==="completed" && <PopupCompleted onClose={() => setPopup(null)} />}
+                </Portal>
             )}
             <h1
-            lang={language === "ua" ? "uk" : "en"}
-            className="sekuya-regular mb-5 text-4xl sm:text-5xl"
+                className="sekuya-regular mb-5 text-4xl sm:text-5xl"
             >
                 {t.tasks}
             </h1>
 
             {activeTasks.length === 0 && <p>{t.taskText}</p>}
 
-            <ul className="flex flex-col">
-                {activeTasks.map((task, index) => (
-                    <TaskItem
-                        key={task.id}
-                        task={task}
-                        index={index}
-                        t={t}
-                        checkMarkId={checkMarkId}
-                        onToggleComplete={doneLimitTask}
-                        validateTask={validateTask}
-                        onOpenImage={handleOpenImage}
-                        onOpenSubtasks={openSubtasks}
-                        onDeleteTask={requestDelete}
-                        isLocked={isLocked}
-                        isDeletingItem={isDeletingItem}
-                        onSaveEdit={handleSaveEdit}
-                    />
-                ))}
-            </ul>
+            <div className="tasks-croll-area">
+                <ul className="flex flex-col">
+                    {activeTasks.map((task, index) => (
+                        <TaskItem
+                            key={task.id}
+                            task={task}
+                            index={index}
+                            t={t}
+                            checkMarkId={checkMarkId}
+                            onToggleComplete={doneLimitTask}
+                            validateTask={validateTask}
+                            onOpenImage={handleOpenImage}
+                            onOpenSubtasks={openSubtasks}
+                            onDeleteTask={requestDelete}
+                            isLocked={isLocked}
+                            isDeletingItem={isDeletingItem}
+                            onSaveEdit={handleSaveEdit}
+                        />
+                    ))}
+                </ul>
+            </div>
 
             <ModalImage src={openImage} onClose={handleCloseImage} />
 
-            {failedTasks.length > 0 && createPortal (
-                <button
-                    onClick={() => setIsFailedTasksOpen(true)}
-                    className="fixed bottom-6 right-6 z-30 rounded-full bg-red-600 px-4 py-2 text-sm text-black shadow-lg hover:bg-red-700 ubuntu-regular"
-                >
-                    {t.btnFailed} ({failedTasks.length})
-                </button>,
-                document.body
+            {isActive && failedTasks.length > 0 && (
+                <Portal>
+                    <button
+                        onClick={() => setIsFailedTasksOpen(true)}
+                        className="fixed bottom-6 right-6 z-30 rounded-full bg-red-600 px-4 py-2 text-sm text-black shadow-lg hover:bg-red-700 ubuntu-regular"
+                    >
+                        {t.btnFailed} ({failedTasks.length})
+                    </button>
+                </Portal>
             )}
 
             <SubtasksModal

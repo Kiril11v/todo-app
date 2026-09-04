@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { nanoid } from "@reduxjs/toolkit";
 
 import { createTaskRequest } from "../../store/taskSlice"
-import { createSubtaskRequest } from "../../store/subtasksSlice"
 
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
@@ -19,6 +18,7 @@ import PopupLimit from "../../components/popupLimit/PopupLimit"
 import SubtaskField from "../../components/subtaskField/SubtaskField";
 import TimerCreateTasks from "../../components/timerCreateTasks/TimerCreateTasks";
 import ImagePreview from "../../components/imagePreview/ImagePreview";
+import Portal from "../../components/portal/Portal";
 
 import addSubtaskIcon from "../../assets/add-subTask-icon.svg";
 import IconAttachImage from "../../icons/IconAttachImage";
@@ -78,7 +78,7 @@ function Inbox() {
         setPopup("created");
         resetFormOnly();
         form.reset();
-    }, [tasksCount, dispatch, imageFile, imagePreview, handleRemoveImage]);
+    }, [tasksCount, dispatch, imageFile, imagePreview]);
 
     // timer popups
     useEffect(() => {
@@ -108,19 +108,19 @@ function Inbox() {
     }, []);
 
     return (
-        <div className="ubuntu-regular relative">
+        <div className="ubuntu-regular relative inbox-text">
             {popup && (
-                <>
+                <Portal>
                     <div 
                         className="fixed inset-0 bg-black/40 z-40" 
                         onClick={() => setPopup(null)} 
                     />
                     {popup === "limit" && <PopupLimit onClose={() => setPopup(null)} />}
                     {popup === "created" && <PopupCreated onClose={() => setPopup(null)} />}
-                </>
+                </Portal>
             )}
             
-            <h1 lang={language === "ua" ? "uk" : "en"} className="sekuya-regular mb-5 text-4xl sm:text-5xl">
+            <h1 className="sekuya-regular mb-5 text-4xl sm:text-5xl">
                 {t.inbox}
             </h1>
 
@@ -130,7 +130,7 @@ function Inbox() {
                             {({ input, meta }) => (
                                 <div className="flex flex-col">
                                     <input {...input} type="text" placeholder={t.newTask} 
-                                    className="bg-amber-300 text-black input-style task-style" autoComplete="off"
+                                    className="input-style task-style" autoComplete="off"
                                     />
                                     <div className="relative flex items-center justify-center">
                                         <div className="mt-1 top-1 absolute">

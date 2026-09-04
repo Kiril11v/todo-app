@@ -15,14 +15,25 @@
 
 .dark-theme,
 .dark-theme body {
+  --text-color: white;
+  /* input */
+  --input-bg: #fcd34d;
+  --input-text: #111827;
+  --input-placeholder: #777070;
+  /* subtask input */
+  --subtask-bg: burlywood;
+  /* btn clear */
+  --btn-clear-bg: #244a6b;
+  --btn-clear-text: #ffffff;
+  --btn-clear-border: #3f6bbf;
   --text: white;
   --border-color: white;
   /* icon-theme */
   --lamp-pouring: #FFC600;
   /* btn save */
-  --btn-save-bg: #15803d;
-  --btn-save-hover: #66d558;
-  --btn-save-text: white;
+  --btn-save-bg: #0f5a2c;;
+  --btn-save-hover: #55b448;
+  --btn-save-text: #d4ffd4;
   --btn-save-text-hover: black;
   /* settings */
   --btn-text-archive: #e5e7eb;
@@ -55,13 +66,22 @@
 
 .light-theme,
 .light-theme body {
-  --text: black;
-  --border-color: black;
+  --text-color: black;
+   /* inputs */
+  --input-bg: #3a3a3a;
+  --input-text: #f5f5f5;
+  --input-placeholder: #aaaaaa;
+  /* subtask input */
+  --subtask-bg: #77746f;
+  /* clear button */
+  --btn-clear-bg: #366fa0;
+  --btn-clear-text: #000;
+  --btn-clear-border: #5a86ff;
   /* icon-theme */
   --lamp-pouring: #D9CDC1;
   /* btn save */
-  --btn-save-bg: rgb(0, 176, 0);
-  --btn-save-hover: green; 
+  --btn-save-bg: #15863e;
+  --btn-save-hover: rgb(24, 101, 46);
   --btn-save-text: black;
   --btn-save-text-hover: white;
   /* settings */
@@ -88,22 +108,15 @@
   --btn-timer-color-hover: #404040;
   /* footer-color */
   --text-footer: #39393a;
-
-   --card-bg: rgba(212, 211, 211, 0.404);
+  --card-bg: rgba(212, 211, 211, 0.404);
   --card-shadow-light: rgba(152, 152, 152, 0.9);
   --card-shadow-dark: rgba(152, 152, 152, 0.9);
-}
-
-#root > div {
-  min-height: 75vh;
-  width: 100%;
 }
 
 body {
   color: var(--text); 
   display: flex;
   min-width: 320px;
-  margin-top: 90px;
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
@@ -117,6 +130,9 @@ body::after {
   background-repeat: no-repeat;
   background-position: initial;
   transition: opacity 0.5s ease;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
 }
 
 body::before {
@@ -152,7 +168,8 @@ h1 {
 
 .sekuya-regular:lang(uk) { 
   font-family: "Ubuntu", sans-serif;
-  font-weight: 700;
+  font-weight: 600;
+  font-style: normal;
 }
 
 .ubuntu-regular {

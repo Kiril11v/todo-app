@@ -58,9 +58,9 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
   }, []);
 
   return (
-  <nav className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-5 lang-${language}`}>
+  <nav className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-10 lang-${language}`}>
       <div className="flex justify-between text-gray-200 my-4 sm:my-1">
-        <NavLink className="px-6 flex items-center gap-1 hover:scale-105 transition-transform text-white" to="/">
+        <NavLink className="px-6 flex items-center gap-1 transition-transform text-white" to="/">
           <img src={logoIcon} alt="logo"/>
           <span className="font-semibold tracking-wide">ToDo</span>
         </NavLink>
@@ -107,26 +107,26 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
           ${menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
             <li>
               <NavLink 
-              to="/" 
-              className="nav-item"
-              onClick={closeAll}>
-                {t.inbox}
+                to="/" 
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.inbox}
               </NavLink>
             </li>
             <li>
               <NavLink 
-              to="/tasks" 
-              className="nav-item" 
-              onClick={closeAll}>
-                {t.tasks}
+                to="/tasks" 
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.tasks}
               </NavLink>
             </li>
             <li>
               <NavLink 
-              to="/done"
-              className="nav-item"
-              onClick={closeAll}>
-                {t.done}
+                to="/done"
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.done}
               </NavLink>
             </li>
             {/* btn settings */}

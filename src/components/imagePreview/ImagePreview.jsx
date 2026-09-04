@@ -1,4 +1,7 @@
 import { useState } from "react";
+
+import Portal from "../portal/Portal";
+
 import IconRecycleBin from "../../icons/IconRecycleBin";
 import IconClosePlus from "../../icons/IconClosePlus";
 
@@ -28,23 +31,25 @@ function ImagePreview({ imagePreview, handleRemoveImage }) {
             </div>
 
             {isOpenImage && (
-                <div
-                    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
-                    onClick={() => setIsOpenImage(false)}
-                >
-                    <button
-                        className="absolute top-4 right-5 text-white"
+                <Portal>
+                    <div
+                        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
                         onClick={() => setIsOpenImage(false)}
                     >
-                        <IconClosePlus />
-                    </button>
+                        <button
+                            className="absolute top-4 right-5 text-white"
+                            onClick={() => setIsOpenImage(false)}
+                        >
+                            <IconClosePlus />
+                        </button>
 
-                    <img
-                        src={imagePreview}
-                        onClick={(e) => e.stopPropagation()}
-                        className="max-w-[90%] max-h-[90%] object-contain rounded-lg"
-                    />
-                </div>
+                        <img
+                            src={imagePreview}
+                            onClick={(e) => e.stopPropagation()}
+                            className="max-w-[90%] max-h-[90%] object-contain rounded-lg"
+                        />
+                    </div>
+                </Portal>
             )}
         </>
     );
