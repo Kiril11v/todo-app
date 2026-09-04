@@ -120,34 +120,29 @@ body {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-html::before,
-html::after {
-  content: '';
+#bg-layer {
   position: fixed;
-  inset: 0;
-  z-index:-1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: initial;
-  transition: opacity 0.5s ease;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  background-position: center;
+  transition: background-image 0.5s ease;
+  pointer-events: none;
 }
 
-html::before {
-  background-image: url("./assets/bg-black-theme.webp");
+.dark-theme #bg-layer {
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+    url("./assets/bg-black-theme.webp");
 }
 
-html::after {
+.light-theme #bg-layer {
   background-image: url("./assets/bg-white-theme.webp");
 }
-
-.dark-theme::before { opacity: 0.15; }
-.dark-theme::after  { opacity: 0; }
-
-.light-theme::before { opacity: 0; }
-.light-theme::after  { opacity: 1; }
 
 .break-words-hyphens { 
   overflow-wrap: anywhere;
