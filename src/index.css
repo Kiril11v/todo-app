@@ -120,8 +120,8 @@ body {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-body::before,
-body::after {
+html::before,
+html::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -135,19 +135,19 @@ body::after {
   height: 100dvh;
 }
 
-body::before {
+html::before {
   background-image: url("./assets/bg-black-theme.webp");
 }
 
-body::after {
+html::after {
   background-image: url("./assets/bg-white-theme.webp");
 }
 
-.dark-theme body::before { opacity: 0.15; }
-.dark-theme body::after  { opacity: 0; }
+.dark-theme::before { opacity: 0.15; }
+.dark-theme::after  { opacity: 0; }
 
-.light-theme body::before { opacity: 0; }
-.light-theme body::after  { opacity: 1; }
+.light-theme::before { opacity: 0; }
+.light-theme::after  { opacity: 1; }
 
 .break-words-hyphens { 
   overflow-wrap: anywhere;
