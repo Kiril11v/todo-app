@@ -1,0 +1,136 @@
+.deadline-popup {
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid rgba(202, 162, 74, 0.6);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  box-shadow:
+    0 0 24px rgba(202, 162, 74, 0.15),
+    -6px 0px 10px rgba(110, 95, 95, 0.4);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+}
+
+.deadline-calendar.react-calendar {
+  width: 280px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  color: #ffffff;
+  line-height: 1.3em;
+}
+
+/* Навигация (стрелки + месяц/год) */
+.deadline-calendar .react-calendar__navigation button {
+  background: none;
+  border-radius: 0.6rem;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.deadline-calendar .react-calendar__navigation button:enabled:hover,
+.deadline-calendar .react-calendar__navigation button:enabled:focus {
+  background: rgba(202, 162, 74, 0.18);
+  color: #fff8dc;
+}
+
+.deadline-calendar .react-calendar__navigation button[disabled] {
+  color: white(255, 255, 255, 0.25);
+}
+
+.deadline-calendar .react-calendar__navigation__label {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #caa24a;
+}
+
+/* Дни недели (Пн Вт Ср ...) */
+.deadline-calendar .react-calendar__month-view__weekdays {
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.deadline-calendar .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  cursor: default;
+}
+
+.deadline-calendar .react-calendar__month-view__weekdays__weekday--weekend abbr {
+  color: rgba(202, 162, 74, 0.75);
+}
+
+/* Соседние месяцы (полупрозрачные даты) */
+.deadline-calendar .react-calendar__month-view__days__day--neighboringMonth {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ячейки дней — карточки с золотой рамкой, как glow-card-subtask */
+.deadline-calendar .react-calendar__tile {
+  position: relative;
+  background: linear-gradient(#101010, #262626) padding-box,
+    linear-gradient(90deg, transparent, transparent) border-box;
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  color: #ffffff;
+  padding: 0.5em 0.4em;
+  font-size: 0.8rem;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+}
+
+.deadline-calendar .react-calendar__tile:enabled:hover,
+.deadline-calendar .react-calendar__tile:enabled:focus {
+  border: 1px solid rgba(202, 162, 74, 0.7);
+  box-shadow: 0 0 10px rgba(202, 162, 74, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Сегодняшняя дата */
+.deadline-calendar .react-calendar__tile--now {
+  background:
+    linear-gradient(#101010, #303030) padding-box,
+    linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 0 10px rgba(202, 162, 74, 0.35);
+}
+
+/* Hover на сегодняшней дате — как у обычной, а не серый дефолт библиотеки */
+.deadline-calendar .react-calendar__tile--now:enabled:hover,
+.deadline-calendar .react-calendar__tile--now:enabled:focus {
+  background:
+    linear-gradient(#101010, #303030) padding-box,
+    linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a) border-box;
+  border: 1px solid rgba(202, 162, 74, 0.7);
+  box-shadow: 0 0 10px rgba(202, 162, 74, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Выбранная дата */
+.deadline-calendar .react-calendar__tile--active {
+  background: linear-gradient(135deg, #caa24a, #8a6d1f) !important;
+  color: #101010 !important;
+  font-weight: 700;
+  border: 1px solid #fff8dc;
+  box-shadow: 0 0 14px rgba(202, 162, 74, 0.6);
+}
+
+.deadline-calendar .react-calendar__tile--active:enabled:hover,
+.deadline-calendar .react-calendar__tile--active:enabled:focus {
+  background: linear-gradient(135deg, #d9b45c, #96792a) !important;
+}
+
+/* Отключённые (прошлые) даты — как completed/disabled в модалке субтасков */
+.deadline-calendar .react-calendar__tile:disabled {
+  background: rgba(40, 40, 40, 0.5);
+  color: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.deadline-calendar .react-calendar__tile:disabled:hover {
+  transform: none;
+  border-color: transparent;
+  box-shadow: none;
+}

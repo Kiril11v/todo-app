@@ -4,13 +4,17 @@ import ModalSettings from "../modalSettings/ModalSettings";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
+
+import IconArrowLeftSwipe from "../../icons/IconArrowLeftSwipe";
+import IconArrowRightSwipe from "../../icons/IconArrowRightSwipe";
 import logoIcon from "../../assets/logo-todo.svg";
-import menuBurgerIcon from "../../assets/menu-burger.svg";
 import IconSettings from "../../icons/IconSettings";
+
 import "./header.css";
 
-function Header() {
+function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [rotate, setRotate] = useState(false);
 
@@ -24,6 +28,10 @@ function Header() {
   const buttonRef = useRef(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const closeAll = useCallback(() => {
     setMenuOpen(false);
@@ -50,9 +58,9 @@ function Header() {
   }, []);
 
   return (
-  <nav className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-99 lang-${language}`}>
+  <nav className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-10 lang-${language}`}>
       <div className="flex justify-between text-gray-200 my-4 sm:my-1">
-        <NavLink className="px-6 flex items-center gap-1 hover:scale-105 transition-transform text-white" to="/">
+        <NavLink className="px-6 flex items-center gap-1 transition-transform text-white" to="/">
           <img src={logoIcon} alt="logo"/>
           <span className="font-semibold tracking-wide">ToDo</span>
         </NavLink>
@@ -61,12 +69,36 @@ function Header() {
         <button 
         onClick={() => setMenuOpen((prev) => !prev)}
         ref={buttonRef}
-        className="sm:hidden pr-10 transition-all duration-300 mt-1">
-            <img src={menuBurgerIcon} alt="menu" />
+        className="sm:hidden pr-10 mt-1"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        >
+          <div style={{ position: "relative", width: 30, height: 16 }}>
+            <span style={{
+              position: "absolute", left: 0, width: "100%", height: 4,
+              background: "currentColor", borderRadius: 2,
+              transition: mounted ? "all 0.3s ease" : "none",
+              top: menuOpen ? 7 : 0,
+              transform: menuOpen ? "rotate(45deg)" : "none",
+            }} />
+            <span style={{
+              position: "absolute", left: 0, width: "100%", height: 4,
+              background: "currentColor", borderRadius: 2,
+              transition: mounted ? "all 0.3s ease" : "none",
+              top: 7,
+              opacity: menuOpen ? 0 : 1,
+            }} />
+            <span style={{
+              position: "absolute", left: 0, width: "100%", height: 4,
+              background: "currentColor", borderRadius: 2,
+              transition: mounted ? "all 0.3s ease" : "none",
+              top: menuOpen ? 7 : 14,
+              transform: menuOpen ? "rotate(-45deg)" : "none",
+            }} />
+          </div>
         </button>
 
         {menuOpen && (
-           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
+           <div className="fixed inset-0 bg-black/50 z-40 sm:hidden"
            onClick={() => setMenuOpen(false)}>
            </div> )}
         <ul ref={menuRef} onClick={(e) => e.stopPropagation()} 
@@ -75,26 +107,26 @@ function Header() {
           ${menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
             <li>
               <NavLink 
-              to="/" 
-              className="nav-item"
-              onClick={closeAll}>
-                {t.inbox}
+                to="/" 
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.inbox}
               </NavLink>
             </li>
             <li>
               <NavLink 
-              to="/tasks" 
-              className="nav-item" 
-              onClick={closeAll}>
-                {t.tasks}
+                to="/tasks" 
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.tasks}
               </NavLink>
             </li>
             <li>
               <NavLink 
-              to="/done"
-              className="nav-item"
-              onClick={closeAll}>
-                {t.done}
+                to="/done"
+                className="nav-item"
+                onClick={closeAll}>
+                  {t.done}
               </NavLink>
             </li>
             {/* btn settings */}
@@ -130,6 +162,18 @@ function Header() {
               </div>
             </li>
         </ul>
+      </div>
+      <div>
+        {canGoPrev && (
+          <button className="absolute top-85 left-5 btn-style-arrow-swipe hidden ml:block" onClick={onPrev}>
+            <IconArrowLeftSwipe />
+          </button>
+        )}
+        {canGoNext && (
+          <button className="absolute top-85 right-5 btn-style-arrow-swipe hidden ml:block" onClick={onNext}>
+            <IconArrowRightSwipe />
+          </button>
+        )}
       </div>
     </nav>
   );

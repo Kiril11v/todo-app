@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { useRef } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
 
@@ -8,7 +9,7 @@ function PopupCreated ({ onClose }) {
     const t = translations[language];
 
     return (
-        <div className="popup-overlay-created rounded-xl bg-blue-100 text-blue-700"
+        <div className="popup-overlay popup-overlay-created rounded-xl bg-blue-100 text-blue-700"
         onClick={onClose}> 
             <div className="popup-window p-4" 
             onClick={(e) => e.stopPropagation()}
@@ -17,7 +18,12 @@ function PopupCreated ({ onClose }) {
                 <p className="text-black my-1">{t.popupCreatedText}</p>
                 <button
                 className="popup-btn-tasks-create btn-style"
-                onClick={() => navigate("/tasks")}
+                onClick={ 
+                    () => {
+                        onClose()
+                        navigate("/tasks")
+                    }
+                }
                 >
                     {t.popupCreatedBtn}
                 </button>

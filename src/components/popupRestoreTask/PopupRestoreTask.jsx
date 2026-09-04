@@ -7,13 +7,8 @@ function PopupRestoreTask ({ onClose }) {
     const { language } = useLanguage();
     const t = translations[language];
 
-    const goToTask = () => {
-        onClose();
-        navigate("/tasks");
-    }
-
     return (
-        <div className="popup-overplay popup-restore-tasks popup-overplay-restore rounded-xl bg-amber-300 text-black"
+        <div className="popup-overplay popup-overplay-restore rounded-xl bg-amber-300 text-black"
         onClick={onClose}>
             <div className="popup-window p-4"
             onClick={(e) => e.stopPropagation()}
@@ -22,7 +17,10 @@ function PopupRestoreTask ({ onClose }) {
                 <p className="my-1 whitespace-pre-line">{t.popupRestoreTaskText}</p>
                 <button
                     className="popup-btn popup-btn-restore btn-style"
-                    onClick={goToTask}
+                    onClick={() => {
+                        onClose();
+                        navigate("/tasks");
+                    }}
                 >
                     {t.popupRestoreTaskBtn}
                 </button>

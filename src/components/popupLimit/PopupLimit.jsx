@@ -8,7 +8,7 @@ function PopupLimit({ onClose }) {
     const t = translations[language];
 
     return (
-        <div className="popup-overlay-limit rounded-xl bg-red-100 text-red-500"
+        <div className="popup-overlay popup-overlay-limit rounded-xl bg-red-100 text-red-500"
         onClick={onClose}>
             <div className="popup-window p-4"
             onClick={(e) => e.stopPropagation()}
@@ -17,7 +17,10 @@ function PopupLimit({ onClose }) {
                 <p className="text-black my-1">{t.popupLimitText}</p>
                 <button
                     className="popup-btn popup-btn-tasks-limit btn-style"
-                    onClick={() => navigate("/tasks")}
+                    onClick={() => {
+                        onClose()
+                        navigate("/tasks")
+                    }}
                 >
                     {t.popupLimitBtn}
                 </button>

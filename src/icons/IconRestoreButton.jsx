@@ -1,6 +1,6 @@
-function IconRestoreButton () {
+function IconRestoreButton ({ isRestoring }) {
     return (
-        <svg viewBox="0 0 25 25" fill="none" className="w-8 h-8"  xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+        <svg viewBox="0 0 25 25" fill="none" className={`w-8 h-8 ${isRestoring ? "spinning" : ""}`}  xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
             <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
             <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
             <g id="SVGRepo_iconCarrier"> <path d="M5.88468 17C7.32466 19.1128 9.75033 20.5

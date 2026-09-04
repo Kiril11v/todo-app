@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -13,16 +14,26 @@
 }
 
 .dark-theme,
-.dark-theme html body {
-  --bg: #1d1d1d;
+.dark-theme body {
+  --text-color: white;
+  /* input */
+  --input-bg: #fcd34d;
+  --input-text: #111827;
+  --input-placeholder: #777070;
+  /* subtask input */
+  --subtask-bg: burlywood;
+  /* btn clear */
+  --btn-clear-bg: #244a6b;
+  --btn-clear-text: #ffffff;
+  --btn-clear-border: #3f6bbf;
   --text: white;
   --border-color: white;
   /* icon-theme */
   --lamp-pouring: #FFC600;
   /* btn save */
-  --btn-save-bg: #15803d;
-  --btn-save-hover: #66d558;
-  --btn-save-text: white;
+  --btn-save-bg: #0f5a2c;;
+  --btn-save-hover: #55b448;
+  --btn-save-text: #d4ffd4;
   --btn-save-text-hover: black;
   /* settings */
   --btn-text-archive: #e5e7eb;
@@ -35,19 +46,42 @@
   /* done-icon */
   --icon-done: #24b764;
   /* btn-archive-send */
-  --btn-send-archive: white;
+  --btn-send-archive: rgb(140, 140, 140);
+  /* btn-rename-task */
+  --btn-rename-color:rgb(129, 129, 224);
+  --btn-rename-hover: rgb(52, 52, 185);
+  /* task-border-gold */
+  --card-shadow-dark: rgba(0, 0, 0, 0.6);
+  --task-border-bg: #1a1a1a;
+  --task-border-gradient: linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a);
+  /* timer */
+  --btn-timer-color: #404040;
+  --btn-timer-color-hover: #a1a1a1;
+  /* footer-color */
+  --text-footer: #6a7282;
+  --card-bg: #1e1e225f;
+  --card-shadow-light: rgba(255, 255, 255, 0.04);
+  --card-shadow-dark: rgba(0, 0, 0, 0.6);
 }
 
 .light-theme,
-.light-theme html body {
-  --bg: rgb(201, 201, 201); 
-  --text: black;
-  --border-color: black;
+.light-theme body {
+  --text-color: black;
+   /* inputs */
+  --input-bg: #3a3a3a;
+  --input-text: #f5f5f5;
+  --input-placeholder: #aaaaaa;
+  /* subtask input */
+  --subtask-bg: #77746f;
+  /* clear button */
+  --btn-clear-bg: #366fa0;
+  --btn-clear-text: #000;
+  --btn-clear-border: #5a86ff;
   /* icon-theme */
   --lamp-pouring: #D9CDC1;
   /* btn save */
-  --btn-save-bg: rgb(0, 176, 0);
-  --btn-save-hover: green; 
+  --btn-save-bg: #15863e;
+  --btn-save-hover: rgb(24, 101, 46);
   --btn-save-text: black;
   --btn-save-text-hover: white;
   /* settings */
@@ -61,20 +95,55 @@
   /* done-icon */
   --icon-done: black;
   /* btn-archive-send */
-  --btn-send-archive: gray;
-}
-
-html, body { 
-  background-color: var(--bg);
-  color: var(--text); 
+  --btn-send-archive: rgb(91, 89, 89);
+  /* btn-rename-task */
+  --btn-rename-color: rgb(52, 52, 185);
+  --btn-rename-hover: rgb(101, 101, 218);
+  /* task-border-gold */
+  --card-shadow-dark: rgba(152, 152, 152, 0.9);
+  --task-border-bg: #f5f0e6;
+  --task-border-gradient: linear-gradient(90deg, #a8823a, #d9c48f, #a8823a, #6e561f, #a8823a);
+   /* timer */
+  --btn-timer-color: #757575;
+  --btn-timer-color-hover: #404040;
+  /* footer-color */
+  --text-footer: #39393a;
+  --card-bg: rgba(212, 211, 211, 0.404);
+  --card-shadow-light: rgba(152, 152, 152, 0.9);
+  --card-shadow-dark: rgba(152, 152, 152, 0.9);
 }
 
 body {
+  color: var(--text); 
   display: flex;
   min-width: 320px;
-  min-height: 100vh;
-  margin-top: 90px;
   transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+#bg-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: background-image 0.5s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+
+.dark-theme #bg-layer {
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+    url("./assets/bg-black-theme.webp");
+}
+
+.light-theme #bg-layer {
+  background-image: url("./assets/bg-white-theme.webp");
 }
 
 .break-words-hyphens { 
@@ -96,7 +165,8 @@ h1 {
 
 .sekuya-regular:lang(uk) { 
   font-family: "Ubuntu", sans-serif;
-  font-weight: 700;
+  font-weight: 600;
+  font-style: normal;
 }
 
 .ubuntu-regular {
@@ -105,3 +175,10 @@ h1 {
   font-style: normal;
 }
 
+.btn-rename {
+  color: var(--btn-rename-color);
+}
+
+.btn-rename:hover {
+  color: var(--btn-rename-hover);
+}

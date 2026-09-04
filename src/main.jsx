@@ -6,15 +6,18 @@ import { store } from "./store/index.js"
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
 import './index.css'
+import { StrictMode } from 'react'
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <ThemeProvider>
-      <LanguageProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </LanguageProvider>
-    </ThemeProvider>
-  </Provider>
+  <StrictMode>
+    <Provider store={store}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </LanguageProvider>
+      </ThemeProvider>
+    </Provider>
+  </StrictMode>
 )

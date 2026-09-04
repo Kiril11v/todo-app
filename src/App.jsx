@@ -1,5 +1,6 @@
-import { Routes, Route} from 'react-router-dom';
 import { useTheme } from './context/ThemeContext';
+
+import { Route, Routes } from 'react-router-dom';
 
 import Header from './components/header/Header';
 import Inbox from './pages/inbox/Inbox';
@@ -8,24 +9,51 @@ import Done from './pages/done/Done';
 import Archive from './components/archive/Archive';
 import Footer from './components/footer/Footer';
 
-import './App.css'
+import { useEmblaRouter } from './hooks/useEmblaRouter';
+import { useEmblaAutoHeight } from './hooks/useEmblaAutoHeight';
+
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { loadTasksRequest } from './store/taskSlice';
+
+import './app.css';
 
 function App() {
-    const { theme } = useTheme();
+    const dispatch = useDispatch();
+    const { emblaApi, emblaRef, goNext, goPrev, canGoPrev, canGoNext } = useEmblaRouter();
+    const height = useEmblaAutoHeight(emblaApi);
+
+    useEffect(() => {
+        dispatch(loadTasksRequest());
+    }, []);
 
     return (
-        <div className={theme === "light" ? "light-theme" : "dark-theme"}>
-            <Header  />
+        <>
+            <Header onPrev={goPrev} onNext={goNext} canGoPrev={canGoPrev} canGoNext={canGoNext} />
             <Routes>
-                <Route index element={<Inbox />} />
-                <Route path='/tasks' element={<Tasks />} />
-                <Route path='/done' element={<Done />} />
-                <Route path='/archive' element={<Archive />} />
+                <Route 
+                    path='/archive'
+                    element={<Archive />}
+                />
+                <Route 
+                    path='*'
+                    element={
+                        <div className="embla app-wrapper"
+                            ref={emblaRef}
+                            style={height ? { height: `${height}px` } : undefined}
+                            >
+                                <div className="embla__container">
+                                    <div className="embla__slide"><Inbox /></div>
+                                    <div className="embla__slide"><Tasks /></div>
+                                    <div className="embla__slide"><Done /></div>
+                                </div>
+                            </div>
+                    }
+                />
             </Routes>
             <Footer />
-        </div>   
+        </>
     );
 }
 
 export default App;
-

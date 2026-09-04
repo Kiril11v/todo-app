@@ -1,75 +1,148 @@
 import { useDispatch, useSelector } from "react-redux";
-import IconRecycleBin from "../../icons/IconRecycleBin"; 
-import IconSaveToArchive from "../../icons/iconSaveToArchive";
-import { useEffect, useState, useCallback } from "react"
+
+import { useEffect, useState, useCallback, useRef } from "react";
 import { 
     clearAllCompletedTaskRequest,
     archiveTaskRequest,
-    deleteCompletedTaskRequest,
-    archiveOldestTaskRequest
+    deleteCompletedTaskRequest
 } from "../../store/taskSlice"
 import PopupSaveToArchive from "../../components/popupSaveToArchive/PopupSaveToArchive";
+import PopupArchiveLimit from "../../components/popupArchiveLimit/PopupArchiveLimit";
+import ModalImage from "../../components/modalImage/ModalImage"
+import ButtonDelete from "../../components/buttonDelete/ButtonDelete.jsx";
+import TaskDoneItem from "../../components/taskDoneItem/TaskDoneItem.jsx";
+import Portal from "../../components/portal/Portal.jsx";
+
+import { useDeleteTask } from "../../hooks/useDeleteTask.js";
+
 import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
 
-import "./Done.css"
+import "./done.css"
+
+const ARCHIVE_ANIMATION_MS = 600;
+const POPUP_DURATION_MS = 3000;
+const ARCHIVE_LIMIT = 15;
 
 function Done() {
     const dispatch = useDispatch();
     const completedTasks = useSelector((s) => s.tasks.completedTasks);
-
-    const [showPopupSaveToArchive, setShowPopupSaveToArchive] = useState(false);
+    const archivedTasksCount = useSelector(s => s.tasks.archivedTasks.length);
+    const subtasksByTaskId = useSelector(s => s.subtasks.byTaskId);
+    
+    const [popup, setPopup] = useState(null)
+    const [pendingArchivedId, setPendingArchivedId] = useState(null);
+    const [archivingAnimationId, setArchivingAnimationId] = useState(null);
+    const [openImage, setOpenImage] = useState(null);
 
     // language
     const { language } = useLanguage();
     const t = translations[language];
 
-    // the task sends to archive > 15
-    useEffect(() => {
-        if (completedTasks.length > 15) {
-            dispatch(archiveOldestTaskRequest());
-        }
-    }, [completedTasks, dispatch]);
-
     // timer popup
     useEffect(() => {
-        if (!showPopupSaveToArchive) return;
+        if (popup !== "saveToArchive") return;
 
-        const timer = setTimeout(() => setShowPopupSaveToArchive(false), 5000);
+        const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
+
         return () => clearTimeout(timer);
-    }, [showPopupSaveToArchive]);
+    }, [popup]);
 
+    // prevent duplicate dispatch on rapid double-click
+    const archiveTimeoutRef = useRef(null);
+    useEffect(() => {
+        return () => {
+            if (archiveTimeoutRef.current) clearTimeout(archiveTimeoutRef.current);
+        };
+    }, []);
+
+    // dispatch task in archive
     const handleArchive = useCallback(
         (id) => {
             dispatch(archiveTaskRequest(id));
-            setShowPopupSaveToArchive(true)
+            setPopup("saveToArchive")
         },
-        [dispatch]
-    )
-
-    const handleDelete = useCallback(
-        (id) => dispatch(deleteCompletedTaskRequest(id)),
         [dispatch]
     );
 
-    const handleClearAll = () => dispatch(clearAllCompletedTaskRequest());
+    // trigger archive animation
+    const runArchiveWithAnimation = useCallback(
+        (id) => {
+            if (archiveTimeoutRef.current) clearTimeout(archiveTimeoutRef.current);
+
+            setArchivingAnimationId(id);
+            archiveTimeoutRef.current = setTimeout(() => {
+                handleArchive(id);
+                setArchivingAnimationId(null);
+                archiveTimeoutRef.current = null;
+            }, ARCHIVE_ANIMATION_MS);
+        },
+        [handleArchive]
+    );
+
+    // shows popup by limit task
+    const archiveLimitTask = useCallback(
+        (id) => {
+            if (archivedTasksCount >= ARCHIVE_LIMIT) {
+                setPendingArchivedId(id);
+                setPopup("archiveLimit");
+                return;
+            }
+            runArchiveWithAnimation(id);
+        },
+        [archivedTasksCount, runArchiveWithAnimation]
+    );
+
+     const handleArchiveLimitConfirm = useCallback(() => {
+        setPopup(null);
+        setPendingArchivedId((id) => {
+            if (id != null) runArchiveWithAnimation(id);
+            return null;
+        });
+    }, [runArchiveWithAnimation]);
+ 
+    const handleArchiveLimitClose = useCallback(() => {
+        setPopup(null);
+        setPendingArchivedId(null);
+    }, []);
+
+    // delete Task
+    const { requestDelete, isLocked, isDeletingItem } = useDeleteTask(
+        (id) => dispatch(deleteCompletedTaskRequest(id))
+    );
+
+    // clear all tasks
+    const handleClearAll = useCallback(() => dispatch(clearAllCompletedTaskRequest()), [dispatch]);
 
     return (
         <div className="ubuntu-regular">
-
-            {showPopupSaveToArchive && (
-                <>
+            {/* popups */}
+            {popup && (
+                <Portal>
                     <div
                     className="fixed inset-0 bg-black/40 z-40"
-                    onClick={() => setShowPopupSaveToArchive(false)}
+                    onClick={() => {
+                        if (popup === "archiveLimit") {
+                            handleArchiveLimitClose();
+                        } else {
+                            setPopup(null);
+                        }
+                    }}
                     />
-                    <PopupSaveToArchive onClose={() => setShowPopupSaveToArchive(false)} />
-                </>
-                
+
+                    {popup === "archiveLimit" && (
+                        <PopupArchiveLimit
+                            onConfirm={handleArchiveLimitConfirm}
+                            onClose={handleArchiveLimitClose}
+                        />
+                    )}
+                    {popup === "saveToArchive" && (
+                        <PopupSaveToArchive onClose={() => setPopup(null)} />
+                    )}
+                </Portal>
             )}
 
             <h1 
-            lang={language === "ua" ? "uk" : "en"}
             className={`sekuya-regular mb-5 ${language === "pl" ? "text-2xl sm:text-5xl" : "text-4xl sm:text-5xl"}`}
             >
                 {t.done}
@@ -80,58 +153,35 @@ function Done() {
             ) : (
                 <>
                     <ul className="flex flex-col">
-                        {completedTasks.map((task) => (
-                        <li key={task.id}
-                        className="border rounded-lg flex flex-col p-4 shadow-sm space-y-1 done-border relative">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex gap-1">
-                                        <svg className="w-6 h-6 shrink-0 done-icon absolute left-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.24"/>
-                                        <path d="M8.5 11L10.7929 13.2929C11.1834 13.6834 11.8166 13.6834 12.2071 13.2929L19.5 6"
-                                            stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                                        </svg>
-                                        <h3 className=" pl-4 pr-1 text-left break-words-hyphens">{task.title}</h3>
-                                    </div>
-                                    <div className="flex gap-3 mb-2 relative">
-                                        {/* btn save to archive */}
-                                        <button className="style-btn" onClick={() => handleArchive(task.id)}>
-                                            <IconSaveToArchive />
-                                        </button>
-                                        {/* btn delete */}
-                                        <button className="style-btn" onClick={() => handleDelete(task.id)}>
-                                            <IconRecycleBin/>
-                                        </button>
-                                        {task.completedAt && (
-                                            <div className="absolute right-0 top-7 sm:right-20 sm:top-1">
-                                                <p className="text-sm text-gray-600">{new Date(task.completedAt).toLocaleDateString("pl-PL")}</p>
-                                            </div>
-                                        )}
-                                </div>
-                            </div>
-                            {task.subtasks?.length > 0 && (
-                            <div className="text-left">
-                                <h6 className="sekuya-regular">{t.doneSubtasks}</h6>
-                                <ul>
-                                    {task.subtasks.map((sub, i) => (
-                                    <li key={i} className="break-words-hyphens flex gap-2"><span>✔</span><span>{sub.title}</span></li>
-                                    ))}
-                                </ul>
-                            </div>
-                            )}
-                    </li>
-                    ))}
-                </ul>
+                        {completedTasks.map((task, index) => (
+                            <TaskDoneItem
+                                key={task.id}
+                                task={task}
+                                index={index}
+                                subtasks={subtasksByTaskId[task.id]}
+                                t={t}
+                                isArchiving={archivingAnimationId === task.id}
+                                onArchive={archiveLimitTask}
+                                onOpenImage={setOpenImage}
+                                onDelete={requestDelete}
+                                isLocked={isLocked}
+                                isDeleting={isDeletingItem(task.id)}
+                            />
+                        ))}
+                    </ul>
 
-                <div className="flex justify-end">
-                    <button onClick={handleClearAll}
-                        className="text-red-60 mt-5 px-7 py-3 rounded-lg error-border cursor-pointer"
-                    >
-                        {t.doneClearBtn}
-                    </button>
-                </div>
-            </>
-        )}
-    </div>
+                    <ModalImage src={openImage} onClose={() => setOpenImage(null)}/>
+
+                    <div className="flex justify-end">
+                        <button onClick={handleClearAll}
+                            className="text-red-60 mt-5 mr-2 px-7 py-3 rounded-lg error-border cursor-pointer"
+                        >
+                            {t.doneClearBtn}
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
     );
 }
 

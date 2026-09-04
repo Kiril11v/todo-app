@@ -21,25 +21,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.closeModal-btn{
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); transition: box-shadow 0.2s ease;
-    transition: background-color 0.25s ease,
-    color 0.25s ease,
-    transform 0.2s ease;
-}
-
-.closeModal-btn:hover{
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
-    background-color: white;
-    color: black;
-}
-
-.closeModal-btn:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
 .checkmark path { 
     stroke-dasharray: 30;
     stroke-dashoffset: 30;
@@ -52,23 +33,6 @@
 
 .checkmark { 
     transition: opacity 0.2s ease;
-}
-
-.closeIconPlus-btn {
-    padding: 4px;
-    border-radius: 6px;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-    cursor: pointer;
-}
-
-.closeIconPlus-btn:hover {
-    transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.closeIconPlus-btn:active {
-    transform: scale(0.95);
-    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .style-btn { 
@@ -88,14 +52,34 @@
 }
 
 .popup-window{
-  padding: 25px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
   border-radius: 14px;
-  text-align: center;
   min-width: 260px;
 }
 
 .popup-overlay-completed{
   overflow: hidden;
+  position: fixed;
+  top: 25px;
+  right: 15px;
+  z-index: 999;
+  border: 3px solid green;
+  animation: slideOut 0.3s ease 2.7s forwards;
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(120%);
+    }
 }
 
 .popup-overlay-completed::after { 
@@ -104,7 +88,7 @@
   bottom: 0; left: 0;
   height: 4px;
   width: 0%;
-  animation: fillTimer 5s linear forwards;
+  animation: fillTimer 3s linear forwards;
   background: green;
 }
 
@@ -118,22 +102,28 @@
   width: auto;
 }
 
-.popup-btn-tasks-completed:hover{
-  border: 4px solid green;
-  
+.popup-overlay-done-limit{
+    color: black;
+    background-color: aliceblue;
 }
 
-.popup-completed-border{
-    border: 3px solid green;
+.border-button{
+    border: 3px solid black;
 }
 
 .task-border{
-    border-color: var(--border-color);
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 2rem;
+  background:
+    linear-gradient(var(--task-border-bg), var(--task-border-bg)) padding-box,
+    var(--task-border-gradient) border-box;
 }
 
 .input-edit{
   color: #111827;
   border: 2px solid transparent;
+  border-radius: 2rem;
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease,
@@ -143,7 +133,6 @@
 
 .input-edit:focus {
   outline: none;
-  border-color: rgb(131, 131, 163);
   box-shadow: 0 0 10px rgba(114, 114, 147, 0.4);
   background-color: #2f322e;
   color: white;
@@ -152,9 +141,9 @@
 .edit-expand { 
     position: relative;
     z-index: 1; 
- }
+}
 
- .edit-expand.active { 
+.edit-expand.active { 
     width: 100%;
     height: 100%;
     position: absolute; 
@@ -163,4 +152,39 @@
     min-height: 100%;
     resize: none;
     overflow: hidden;
- }
+}
+
+@keyframes drawCheck {
+    from {
+        clip-path: inset(0 0 100% 0);
+    }
+    to {
+        clip-path: inset(0 0 0% 0);
+    }
+}
+
+.checkmark-animate{
+    animation: drawCheck 0.4s ease forwards;
+}
+
+.btn-timer{
+    color: var(--btn-timer-color);
+    cursor: pointer;
+}
+
+.btn-timer:hover{
+    color: var(--btn-timer-color-hover);
+}
+
+.tasks-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.tasks-scroll-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
