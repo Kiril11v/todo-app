@@ -131,7 +131,9 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   transition: background-image 0.5s ease;
-  pointer-events: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
 .dark-theme #bg-layer {
