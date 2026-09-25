@@ -15,7 +15,10 @@ const tasksSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    loadTasksRequest: (state) => { state.loading = true; },
+    loadTasksRequest: (state) => {
+       state.loading = true; 
+      
+    },
     loadTasksSuccess: (state, action) => {
       state.loading = false;
 
