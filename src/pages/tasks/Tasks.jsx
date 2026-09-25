@@ -1,7 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { createPortal } from "react-dom";
 
 import {completeTaskRequest, deleteTaskRequest, editTaskRequest } from "../../store/taskSlice";
 import { toggleSubtaskRequest } from "../../store/subtasksSlice";

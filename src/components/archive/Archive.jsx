@@ -86,7 +86,7 @@ export default function Archive() {
     }, [popup]);
 
     return (
-        <div className="ubuntu-regular p-8">
+        <div className="ubuntu-regular p-8 min-h-[75vh]">
 
             {popup && (
                 <Portal>

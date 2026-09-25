@@ -1,7 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import { createTaskRequest, restoreArchiveSuccess } from "./taskSlice";
+import { SubtasksState, SubtaskItem } from "../types/task";
 
-const initialState = {
+const initialState: SubtasksState = {
     byTaskId: {},
     loading: false,
     error: null,
@@ -13,7 +14,7 @@ const subtasksSlice = createSlice({
     initialState,
     reducers: {
         loadSubtasksRequest: () => {},
-        loadSubtasksSuccess: (state, action) => {
+        loadSubtasksSuccess: (state, action: PayloadAction<{ taskId: string; subtasks: SubtaskItem[] }>) => {
             const { taskId, subtasks } = action.payload;
 
             state.byTaskId[taskId] = {
@@ -24,12 +25,12 @@ const subtasksSlice = createSlice({
                 }))
             }
         },
-        loadSubtasksFailure: (state, action) => { 
+        loadSubtasksFailure: (state, action: PayloadAction<string>) => { 
             state.loading = false;
             state.error = action.payload;
         },
 
-        createSubtaskSuccess: (state, action) => {
+        createSubtaskSuccess: (state, action: PayloadAction<{ tempId?: string; taskId: string; subtasks: SubtaskItem[] }>) => {
             state.loading = false;
             const { tempId, taskId, subtasks } = action.payload;
 
@@ -45,7 +46,7 @@ const subtasksSlice = createSlice({
                 }))
             };
         },
-        createSubtaskFailure: (state, action) => {
+        createSubtaskFailure: (state, action: PayloadAction<{ taskId?: string; error: string }>) => {
             state.loading = false;
             state.error = action.payload.error;
 
@@ -55,7 +56,7 @@ const subtasksSlice = createSlice({
             }
         },
 
-        toggleSubtaskRequest: (state, action) => {
+        toggleSubtaskRequest: (state, action: PayloadAction<{ taskId?: string; subtaskId: string }>) => {
             const { taskId, subtaskId } = action.payload;
 
             const list = state.byTaskId[taskId]?.items;
@@ -67,7 +68,7 @@ const subtasksSlice = createSlice({
                 subtask.completed = !subtask.completed;
             }
         },
-        toggleSubtaskSuccess: (state, action) => {
+        toggleSubtaskSuccess: (state, action: PayloadAction<{ taskId?: string; subtaskId: string }>) => {
             const { taskId, subtaskId } = action.payload;
 
             const list = state.byTaskId[taskId]?.items;
@@ -76,32 +77,32 @@ const subtasksSlice = createSlice({
             const subtask = list.find(s => s.id === subtaskId);
             if (subtask) delete subtask._prevCompleted; 
         },
-        toggleSubtaskFailure: (state, action) => {
+        toggleSubtaskFailure: (state, action: PayloadAction<{ taskId: string; subtaskId: string; error: string }>) => {
             const { taskId, subtaskId, error } = action.payload;
             state.error = error;
 
             const subtask = state.byTaskId[taskId]?.items.find(s => s.id === subtaskId);
             if (subtask && subtask._prevCompleted !== undefined) {
-                subtask.completed = subtask._prevCompleted; // откатываем при ошибке
+                subtask.completed = subtask._prevCompleted;
                 delete subtask._prevCompleted;
             }
         },
 
         deleteSubtaskRequest: () => {},
-        deleteSubtaskSuccess(state, action) {
+        deleteSubtaskSuccess(state, action: PayloadAction<{ taskId?: string; subtaskId: string }>) {
             state.loading = false;
             const { taskId, subtaskId } = action.payload;
 
             const task = state.byTaskId[taskId];
-
+            if (!task) return;
             task.items = task.items.filter(s => s.id !== subtaskId);
         },
-        deleteSubtaskFailure: (state, action) => {
+        deleteSubtaskFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
 
-        editSubtaskRequest: (state, action) => {
+        editSubtaskRequest: (state, action: PayloadAction<{ taskId: string; subtaskId: string; newTitle: string }>) => {
             state.loading = true;
             const { taskId, subtaskId, newTitle } = action.payload;
 
@@ -123,22 +124,22 @@ const subtasksSlice = createSlice({
             state.loading = false;
             state.subtaskBackup = null;
         },
-        editSubtaskFailure: (state, action) => { 
+        editSubtaskFailure: (state, action: PayloadAction<string>) => { 
             state.loading = false; 
             state.error = action.payload; 
             if (state.subtaskBackup) {
                 const list = state.byTaskId[state.subtaskBackup.taskId]?.items;
                 if (list) {
-                     const subtask = list.find(s => s.id === state.subtaskBackup.id);
+                     const subtask = list.find(s => s.id === state.subtaskBackup!.id);
                     if (subtask) {
-                        subtask.title = state.subtaskBackup.title;
+                        subtask.title = state.subtaskBackup!.title;
                     }
                 }
                 state.subtaskBackup = null;
             }
         },
 
-        completeAllSubtasksSuccess: (state, action) => {
+        completeAllSubtasksSuccess: (state, action: PayloadAction<{ taskId: string; subtasks: SubtaskItem[] }>) => {
             const { taskId, subtasks } = action.payload;
 
             if (!state.byTaskId[taskId]) return;
@@ -182,13 +183,12 @@ export const {
     loadSubtasksRequest,
     loadSubtasksSuccess,
     loadSubtasksFailure,
-    createSubtaskRequest,
     createSubtaskSuccess,
     createSubtaskFailure,
     toggleSubtaskRequest,
     toggleSubtaskSuccess,
     toggleSubtaskFailure,
-    allSubtasksCompletedSuccess,
+    completeAllSubtasksSuccess,
     deleteSubtaskRequest,
     deleteSubtaskSuccess,
     deleteSubtaskFailure,
