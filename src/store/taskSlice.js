@@ -53,7 +53,7 @@ const tasksSlice = createSlice({
           title: s.title,
           is_optimistic: true,
         })),
-        is_optimistic: true, // флаг для UI (спиннер/затемнение на карточке)
+        is_optimistic: true,
         created_at: new Date().toISOString(),
       };
 

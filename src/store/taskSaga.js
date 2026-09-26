@@ -46,7 +46,7 @@ function* loadTasksSaga() {
       .from('tasks')
       .select('*, subtasks(*)')
     );
- 
+
     if (error) throw error;
 
     const tasks = data.map(t => ({

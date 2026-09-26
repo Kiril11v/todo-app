@@ -12,20 +12,11 @@ import Footer from './components/footer/Footer';
 import { useEmblaRouter } from './hooks/useEmblaRouter';
 import { useEmblaAutoHeight } from './hooks/useEmblaAutoHeight';
 
-import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
-import { loadTasksRequest } from './store/taskSlice';
-
 import './app.css';
 
 function App() {
-    const dispatch = useDispatch();
     const { emblaApi, emblaRef, goNext, goPrev, canGoPrev, canGoNext } = useEmblaRouter();
     const height = useEmblaAutoHeight(emblaApi);
-
-    useEffect(() => {
-        dispatch(loadTasksRequest());
-    }, []);
 
     return (
         <>
