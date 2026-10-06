@@ -8,7 +8,7 @@ import { toggleSubtaskRequest } from "../../store/subtasksSlice";
 import { useTaskValidation } from "../../hooks/useTaskValidation";
 import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../context/languageContext";
 import { translations } from "../../context/translations";
 
 import { isTaskFailed } from "../../utils/deadline";

@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import ModalSettings from "../modalSettings/ModalSettings";
-import { useTheme } from "../../context/ThemeContext";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
 
 import IconArrowLeftSwipe from "../../icons/IconArrowLeftSwipe";
@@ -12,20 +11,26 @@ import IconSettings from "../../icons/IconSettings";
 
 import "./header.css";
 
-function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
+interface HeaderProps {
+  onPrev: () => void;
+  onNext: () => void;
+  canGoPrev: boolean;
+  canGoNext: boolean;
+}
+
+function Header({ onPrev, onNext, canGoPrev, canGoNext }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [rotate, setRotate] = useState(false);
 
-  const { theme, toggleTheme } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
 
-  const menuRef = useRef(null);
-  const modalRef = useRef(null);
-  const settingsButtonRef = useRef(null);
-  const buttonRef = useRef(null);
+  const menuRef = useRef<HTMLUListElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const navigate = useNavigate();
 
@@ -40,14 +45,16 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
   }, []);
 
   useEffect(() => {
-    const  handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target) &&
-      buttonRef.current && !buttonRef.current.contains(event.target)) {
+    const  handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (menuRef.current && !menuRef.current.contains(target) &&
+      buttonRef.current && !buttonRef.current.contains(target)) {
         setMenuOpen(false);
       }
 
-      if (modalRef.current && !modalRef.current.contains(event.target) &&
-      settingsButtonRef.current && !settingsButtonRef.current.contains(event.target)) {
+      if (modalRef.current && !modalRef.current.contains(target) &&
+      settingsButtonRef.current && !settingsButtonRef.current.contains(target)) {
         setModalOpen(false);
         setRotate(false);
       }
@@ -155,8 +162,6 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }) {
                     navigate("/archive");
                     closeAll();
                     }}
-                    toggleTheme={toggleTheme}
-                    theme={theme}
                   />
                 </div>
               </div>

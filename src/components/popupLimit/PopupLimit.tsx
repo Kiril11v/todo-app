@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
 
-function PopupLimit({ onClose }) {
+interface PopupProps {
+    onClose: () => void;
+}
+
+function PopupLimit({ onClose }: PopupProps) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = translations[language];

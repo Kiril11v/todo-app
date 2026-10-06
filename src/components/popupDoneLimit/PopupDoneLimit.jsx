@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../context/languageContext";
 import { translations } from "../../context/translations";
 
 function PopupDoneLimit({ onClose }) {

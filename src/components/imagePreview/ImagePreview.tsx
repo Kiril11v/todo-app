@@ -1,12 +1,18 @@
 import { useState } from "react";
+import type { MouseEvent } from "react";
 
 import Portal from "../portal/Portal";
 
 import IconRecycleBin from "../../icons/IconRecycleBin";
 import IconClosePlus from "../../icons/IconClosePlus";
 
-function ImagePreview({ imagePreview, handleRemoveImage }) {
-    const [isOpenImage, setIsOpenImage] = useState(false);
+interface ImagePreviewProps {
+    imagePreview: string | null;
+    handleRemoveImage: () => void;
+}
+
+function ImagePreview({ imagePreview, handleRemoveImage }: ImagePreviewProps) {
+    const [isOpenImage, setIsOpenImage] = useState<boolean>(false);
 
     if (!imagePreview) return null;
 
@@ -37,6 +43,7 @@ function ImagePreview({ imagePreview, handleRemoveImage }) {
                         onClick={() => setIsOpenImage(false)}
                     >
                         <button
+                            type="button"
                             className="absolute top-4 right-5 text-white"
                             onClick={() => setIsOpenImage(false)}
                         >
@@ -45,7 +52,8 @@ function ImagePreview({ imagePreview, handleRemoveImage }) {
 
                         <img
                             src={imagePreview}
-                            onClick={(e) => e.stopPropagation()}
+                            alt="full preview"
+                            onClick={(e: MouseEvent<HTMLImageElement>) => e.stopPropagation()}
                             className="max-w-[90%] max-h-[90%] object-contain rounded-lg"
                         />
                     </div>

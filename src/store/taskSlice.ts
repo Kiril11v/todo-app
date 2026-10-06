@@ -1,10 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Task, TasksState } from "../types/task";
+import type { ArchiveTaskResultPayload } from "./taskSaga";
 
 interface CreateTaskPayload {
   tempId: string;
   title: string;
-  deadline: string;
+  deadline: string | null;
   imageFile?: File | null;
   imagePreview?: string | null;
   subtasks?: { title: string }[];
@@ -166,7 +167,7 @@ const tasksSlice = createSlice({
       state.tasks = state.tasks.filter(t => t.id !== id);
       state.lastCompletedTask = task;
     },
-    deleteTaskSuccess: (state) => {
+    deleteTaskSuccess: (state, _action: PayloadAction<string>) => {
       state.loading = false;
       state.lastCompletedTask = null;
     },
@@ -193,7 +194,7 @@ const tasksSlice = createSlice({
         state.loading = false;
       } 
     },
-    editTaskSuccess: (state) => {
+    editTaskSuccess: (state, _action: PayloadAction<EditTaskPayload>) => {
       state.loading = false;
       state.taskBackup = null;
     },
@@ -222,7 +223,7 @@ const tasksSlice = createSlice({
       state.completedTasks = state.completedTasks.filter(t => t.id !== id);
       state.lastCompletedTask = task;
     },
-    deleteCompletedTaskSuccess: (state) => {
+    deleteCompletedTaskSuccess: (state, _action: PayloadAction<string>) => {
       state.loading = false;
       state.lastCompletedTask = null;
     },
@@ -247,27 +248,23 @@ const tasksSlice = createSlice({
       state.error = action.payload; 
     },
 
-    archiveOldestTaskRequest : (state) => { 
-      state.loading = true; 
-    },
-    archiveOldestTaskSuccess: (state) => { 
-      state.loading = false;
-    },
-    archiveOldestTaskFailure: (state, action: PayloadAction<string>) => { 
-      state.loading = false; 
-      state.error = action.payload; 
-    },
-
-    archiveTaskRequest: (state) => { 
+    archiveTaskRequest: (state,  _action: PayloadAction<string>) => { 
       state.loading = true;
     },
-    archiveTaskSuccess: (state, action: PayloadAction<string>) => {
+    archiveTaskSuccess: (state, action: PayloadAction<ArchiveTaskResultPayload>) => {
       state.loading = false;
-      const id = action.payload;
-      const task = state.completedTasks.find(t => t.id === id);
-      if (!task) return;
-      state.completedTasks = state.completedTasks.filter(t => t.id !== id);
-      state.archivedTasks.unshift(task);
+      const { archivedTaskId, deletedTaskId } = action.payload;
+      
+      const task = state.completedTasks.find(t => t.id === archivedTaskId);
+
+      if (task) {
+        state.completedTasks = state.completedTasks.filter(t => t.id !== archivedTaskId);
+        state.archivedTasks.unshift(task);
+      }
+
+      if (deletedTaskId) {
+        state.archivedTasks = state.archivedTasks.filter(t => t.id !== deletedTaskId);
+      }
     },
     archiveTaskFailure: (state, action: PayloadAction<string>) => { 
       state.loading = false;
@@ -287,7 +284,7 @@ const tasksSlice = createSlice({
       state.archivedTasks = state.archivedTasks.filter(t => t.id !== id);
       state.lastCompletedTask = task;
     },
-    deleteArchiveTaskSuccess: (state) => {
+    deleteArchiveTaskSuccess: (state, _action: PayloadAction<string>) => {
       state.loading = false;
       state.lastCompletedTask = null;
     },
@@ -383,9 +380,6 @@ export const {
   deleteCompletedTaskRequest,
   deleteCompletedTaskSuccess,
   deleteCompletedTaskFailure,
-  archiveOldestTaskRequest,
-  archiveOldestTaskSuccess,
-  archiveOldestTaskFailure,
   archiveTaskRequest,
   archiveTaskSuccess,
   archiveTaskFailure,

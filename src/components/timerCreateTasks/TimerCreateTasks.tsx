@@ -1,50 +1,62 @@
 import { Field } from "react-final-form";
 import { useState, useRef, useEffect, useMemo } from "react";
-
-import { useLanguage } from "../../context/LanguageContext";
-import { translations } from "../../context/translations";
-
 import Calendar from "react-calendar"
-import "react-calendar/dist/Calendar.css";
-import "./timerCreateTasks.css"
+
+import { translations, type Language } from "../../context/translations";
+import { useLanguage } from "../../hooks/useLanguage"
+
+import {formatDeadline, toDateInputValue } from "../../utils/deadline";
 
 import IconClockActive from "../../icons/IconClockActive";
 import IconClockInactive from "../../icons/IconClockInactive";
 
-import {formatDeadline, toDateInputValue } from "../../utils/deadline";
+import "react-calendar/dist/Calendar.css";
+import "./timerCreateTasks.css"
 
-function TimerIcon({ isSet }) {
-    return isSet ? <IconClockActive /> : <IconClockInactive />
+type ValuePiece = Date | null;
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+
+interface TimerCreateTasksProps {
+    name?: string;
 }
 
-function dateStrToDate(dateStr) {
-    if (!dateStr) return null;
-    const [yyyy, mm, dd] = dateStr.split("-").map(Number);
-    return new Date(yyyy, mm - 1, dd);
+interface TimerIconProps {
+    isSet: boolean;
 }
 
-const localeMap = {
+const localeMap: Record<Language, string> = {
     en: "en-US",
     pl: "pl-PL",
     ua: "uk-UA",
 };
 
-// name — имя поля в форме, значение будет ISO-строкой даты или null
-export default function TimerCreateTasks({ name = "deadline", t }) {
+function TimerIcon({ isSet }: TimerIconProps) {
+    return isSet ? <IconClockActive /> : <IconClockInactive />
+}
+
+function dateStrToDate(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const [yyyy, mm, dd] = dateStr.split("-").map(Number);
+    return new Date(yyyy, mm - 1, dd);
+}
+
+// name ISO-data or null
+export default function TimerCreateTasks({ name = "deadline" }: TimerCreateTasksProps) {
     const [open, setOpen] = useState(false);
     const [dateStr, setDateStr] = useState("");
     const [now, setNow] = useState(() => new Date());
-    const popupRef = useRef(null);
+    const popupRef = useRef<HTMLDivElement>(null);
 
     // language
     const { language } = useLanguage();
+    const t = translations[language];
     const calendarLocale = localeMap[language];
 
     // close on click outside the popup
     useEffect(() => {
         if (!open) return;
-        const onClickOutside = (e) => {
-            if (popupRef.current && !popupRef.current.contains(e.target)) {
+        const onClickOutside = (e: MouseEvent) => {
+            if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
                 setOpen(false);
             }
         };
@@ -53,24 +65,27 @@ export default function TimerCreateTasks({ name = "deadline", t }) {
     }, [open]);
 
     const todayStr = useMemo(() => toDateInputValue(now), [now]);
-    const todayDate = useMemo(() => dateStrToDate(todayStr), [todayStr]);
+    const todayDate = useMemo(() => dateStrToDate(todayStr) ?? undefined, [todayStr]);
 
     const isPast = dateStr ? dateStr < todayStr : false;
     const isValid = Boolean(dateStr) && !isPast;
 
     return (
-        <Field name={name}>
+        <Field<string | null> name={name}>
             {({ input }) => {
-                const isSet = Boolean(input.value);
+                const deadline = input.value || null;
+                const isSet = deadline !== null;
 
                 const openPopup = () => {
-                    setDateStr(input.value || toDateInputValue(new Date()));
+                    setDateStr(deadline ?? toDateInputValue(new Date()));
                     setNow(new Date());
                     setOpen(true);
                 };
 
-                const handleCalendarChange = (value) => {
-                    setDateStr(toDateInputValue(value));
+                const handleCalendarChange = (value: Value) => {
+                    if (value instanceof Date) {
+                        setDateStr(toDateInputValue(value));
+                    }
                 };
 
                 const handleApply = () => {
@@ -107,7 +122,7 @@ export default function TimerCreateTasks({ name = "deadline", t }) {
 
                                 <Calendar
                                 onChange={handleCalendarChange}
-                                value={dateStr ? dateStrToDate(dateStr) : null}
+                                value={dateStrToDate(dateStr)}
                                 minDate={todayDate}
                                 minDetail="month"
                                 className="deadline-calendar"
@@ -115,14 +130,6 @@ export default function TimerCreateTasks({ name = "deadline", t }) {
                                 prev2Label={null}
                                 next2Label={null}
                                 />
-
-                                <div className="mt-2 min-h-[1rem] text-xs">
-                                    {isPast && (
-                                        <span className="text-red-500">
-                                            {t?.pastDate ?? "дата не может быть в прошлом"}
-                                        </span>
-                                    )}
-                                </div>
 
                                 <div className="mt-2 flex justify-between gap-2">
                                     <button
@@ -144,9 +151,9 @@ export default function TimerCreateTasks({ name = "deadline", t }) {
                             </div>
                         )}
 
-                        {isSet && (
+                        {deadline && (
                             <span className="absolute top-11 text-md text-neutral-500">
-                                {formatDeadline(input.value)}
+                                {formatDeadline(deadline)}
                             </span>
                         )}
                     </div>

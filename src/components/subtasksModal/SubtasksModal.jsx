@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../context/languageContext";
 import { translations } from "../../context/translations";
 
 import { deleteSubtaskRequest, editSubtaskRequest } from "../../store/subtasksSlice";

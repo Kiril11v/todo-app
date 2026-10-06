@@ -6,16 +6,17 @@ import {
     archiveTaskRequest,
     deleteCompletedTaskRequest
 } from "../../store/taskSlice"
+
+import TaskDoneItem from "../../components/taskDoneItem/TaskDoneItem.jsx";
 import PopupSaveToArchive from "../../components/popupSaveToArchive/PopupSaveToArchive";
 import PopupArchiveLimit from "../../components/popupArchiveLimit/PopupArchiveLimit";
 import ModalImage from "../../components/modalImage/ModalImage"
 import ButtonDelete from "../../components/buttonDelete/ButtonDelete.jsx";
-import TaskDoneItem from "../../components/taskDoneItem/TaskDoneItem.jsx";
 import Portal from "../../components/portal/Portal.jsx";
 
 import { useDeleteTask } from "../../hooks/useDeleteTask.js";
 
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../context/languageContext.js";
 import { translations } from "../../context/translations";
 
 import "./done.css"
@@ -68,7 +69,7 @@ function Done() {
     // trigger archive animation
     const runArchiveWithAnimation = useCallback(
         (id) => {
-            if (archiveTimeoutRef.current) clearTimeout(archiveTimeoutRef.current);
+            if (archiveTimeoutRef.current) return;
 
             setArchivingAnimationId(id);
             archiveTimeoutRef.current = setTimeout(() => {
@@ -83,6 +84,8 @@ function Done() {
     // shows popup by limit task
     const archiveLimitTask = useCallback(
         (id) => {
+            if (archiveTimeoutRef.current) return;
+
             if (archivedTasksCount >= ARCHIVE_LIMIT) {
                 setPendingArchivedId(id);
                 setPopup("archiveLimit");
@@ -95,11 +98,9 @@ function Done() {
 
      const handleArchiveLimitConfirm = useCallback(() => {
         setPopup(null);
-        setPendingArchivedId((id) => {
-            if (id != null) runArchiveWithAnimation(id);
-            return null;
-        });
-    }, [runArchiveWithAnimation]);
+        if (pendingArchivedId != null) runArchiveWithAnimation(pendingArchivedId);
+        setPendingArchivedId(null);
+    }, [pendingArchivedId ,runArchiveWithAnimation]);
  
     const handleArchiveLimitClose = useCallback(() => {
         setPopup(null);
@@ -164,7 +165,7 @@ function Done() {
                                 onArchive={archiveLimitTask}
                                 onOpenImage={setOpenImage}
                                 onDelete={requestDelete}
-                                isLocked={isLocked}
+                                isLocked={isLocked || archivingAnimationId !== null}
                                 isDeleting={isDeletingItem(task.id)}
                             />
                         ))}

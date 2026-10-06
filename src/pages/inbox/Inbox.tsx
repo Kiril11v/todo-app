@@ -1,17 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-import { Form, Field } from "react-final-form"
-import  { FieldArray } from "react-final-form-arrays"
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { Form, Field } from "react-final-form";
+import  { FieldArray, type FieldArrayRenderProps } from "react-final-form-arrays";
+import type { FormApi } from "final-form";
 import arrayMutators from "final-form-arrays";
-import { useDispatch, useSelector } from "react-redux"
 import { nanoid } from "@reduxjs/toolkit";
 
 import { createTaskRequest } from "../../store/taskSlice"
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 
-import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../context/translations";
 
-import { useTaskValidation } from "../../hooks/useTaskValidation";
 import { useImageAttachment } from "../../hooks/useImageAttachment";
+import { useLanguage } from "../../hooks/useLanguage"
+
+import { validateTask, type TaskValidationError } from "../../utils/validation";
 
 import PopupCreated from "../../components/popupCreated/PopupCreated"
 import PopupLimit from "../../components/popupLimit/PopupLimit"
@@ -28,10 +30,24 @@ const POPUP_DURATION_MS = 3000;
 const MAX_TASKS = 20;
 const MAX_SUBTASKS = 10;
 
-function Inbox() {
-    const dispatch = useDispatch();
+export interface SubtaskFormItem {
+    id: string;
+    title: string;
+}
 
-    const [popup, setPopup] = useState(null);
+interface InboxFormValues {
+    task: string;
+    deadline?: string | null;
+    subtasks?: SubtaskFormItem[];
+}
+
+type PopupType = "limit" | "created" | null;
+export type SubtaskFields = FieldArrayRenderProps<SubtaskFormItem, HTMLElement>["fields"];
+
+function Inbox() {
+    const dispatch = useAppDispatch();
+    const [popup, setPopup] = useState<PopupType>(null);
+    const tasksCount = useAppSelector((state) => state.tasks.tasks.length);
 
     const {
         imageFile,
@@ -46,17 +62,12 @@ function Inbox() {
     const { language } = useLanguage();
     const t = translations[language];
 
-    // validation
-    const { validateTask, validateSubtask } = useTaskValidation(t);
-
-    const tasksCount = useSelector((state) => state.tasks.tasks.length);
-
     // check task and subtask
-    const onSubmit = useCallback((values, form) => {
+    const onSubmit = useCallback((values: InboxFormValues, form: FormApi<InboxFormValues>) => {
         if(tasksCount >= MAX_TASKS) {
             setPopup("limit");
             return;
-        };
+        }
 
         const subtasks = (values.subtasks || [])
             .map(s => typeof s.title === "string" ? s.title.trim() : "")
@@ -78,7 +89,7 @@ function Inbox() {
         setPopup("created");
         resetFormOnly();
         form.reset();
-    }, [tasksCount, dispatch, imageFile, imagePreview]);
+    }, [tasksCount, dispatch, imageFile, imagePreview, resetFormOnly]);
 
     // timer popups
     useEffect(() => {
@@ -87,24 +98,20 @@ function Inbox() {
         return () => clearTimeout(timer);
     }, [popup]);
 
-    const handleAddSubtasks = useCallback((fields, e) => {
-        if(fields.length >= MAX_SUBTASKS) return;
+    const handleAddSubtasks = useCallback((fields: SubtaskFields, e: MouseEvent<HTMLButtonElement>) => {
+        if ((fields.length ?? 0) >= MAX_SUBTASKS) return;
 
         fields.unshift({ 
             title: "", 
-            id: crypto.randomUUID()
+            id: nanoid()
         });
 
-        const icon = e.currentTarget.querySelector(".add-btn-icon");
+        const icon = e.currentTarget.querySelector<HTMLElement>(".add-btn-icon");
         if (!icon) return;
 
         icon.classList.remove("spin");
         void icon.offsetWidth;
         icon.classList.add("spin");
-    }, []);
-
-    const handleRemoveSubtask = useCallback((fields, index) => {
-        fields.remove(index);
     }, []);
 
     return (
@@ -124,9 +131,9 @@ function Inbox() {
                 {t.inbox}
             </h1>
 
-            <Form onSubmit={onSubmit} mutators={{ ...arrayMutators }} render={({ handleSubmit, form, submitting, pristine }) => (
+            <Form<InboxFormValues> onSubmit={onSubmit} mutators={{ ...arrayMutators }} render={({ handleSubmit, form, submitting, pristine }) => (
                     <form onSubmit={handleSubmit}>
-                        <Field name="task" validate={validateTask}>
+                        <Field<string> name="task" validate={validateTask}>
                             {({ input, meta }) => (
                                 <div className="flex flex-col">
                                     <input {...input} type="text" placeholder={t.newTask} 
@@ -135,7 +142,7 @@ function Inbox() {
                                     <div className="relative flex items-center justify-center">
                                         <div className="mt-1 top-1 absolute">
                                             {meta.error && meta.submitFailed && (
-                                                <span className="text-red-500">{t[meta.error]}</span>
+                                                <span className="text-red-500">{t[meta.error as TaskValidationError]}</span>
                                             )}
                                         </div>
                                     </div>
@@ -144,7 +151,8 @@ function Inbox() {
                         </Field>
                         <div className="flex justify-between mt-10">
                             {/* btn clear */}
-                            <button type="reset" 
+                            <button 
+                                type="button" 
                                 className="btn-style btn-clear ml-2"
                                 onClick={() => {
                                     form.reset();
@@ -161,9 +169,9 @@ function Inbox() {
                         </div>
                         <div className="mb-5 mt-2 relative">
                             <h6 className="sekuya-regular">{t.timer}</h6>
-                            <TimerCreateTasks name="deadline" t={t} />
+                            <TimerCreateTasks name="deadline" />
                         </div>
-                        <FieldArray name="subtasks">
+                        <FieldArray<SubtaskFormItem> name="subtasks">
                             {({ fields }) => (
                                 <div className="relative task-block">
                                     <div className=" w-full">
@@ -181,9 +189,6 @@ function Inbox() {
                                                     name={name}
                                                     index={index}
                                                     fields={fields}
-                                                    onRemove={handleRemoveSubtask}
-                                                    validateSubtask={validateSubtask}
-                                                    t={t}
                                                 />
                                             ))}
                                         </div>
@@ -205,7 +210,7 @@ function Inbox() {
                 />
                 <button 
                 type="button"
-                onClick={() => fileInputRef.current.click()}
+                onClick={() => fileInputRef.current?.click()}
                 className="attach-image"
                 >
                     <IconAttachImage />

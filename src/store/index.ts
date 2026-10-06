@@ -11,9 +11,11 @@ export const store = configureStore({
         tasks: tasksReducer,
         subtasks: subtasksReducer
     },
-    middleware: (getDefault) => 
-        getDefault({thunk: false,  serializableCheck: false })
-            .concat(saga),
+    middleware: (getDefaultMiddleware) => 
+        getDefaultMiddleware({thunk: false,  serializableCheck: false }).concat(saga),
 });
 
 saga.run(rootSaga);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

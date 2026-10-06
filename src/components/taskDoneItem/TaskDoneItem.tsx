@@ -59,7 +59,11 @@ function TaskDoneItem({
                         </button>
                     )}
                     {/* btn save to archive */}
-                    <button className="style-btn " onClick={() => onArchive(task.id)}>
+                    <button 
+                        className="style-btn " 
+                        onClick={() => onArchive(task.id)}
+                        disabled={isLocked}
+                    >
                         <IconSaveToArchive isArchiving={isArchiving} />
                     </button>
                     {/* btn delete */}

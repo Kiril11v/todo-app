@@ -1,5 +1,5 @@
 import { useRef } from "react"
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../context/languageContext";
 import { translations } from "../../context/translations";
 import { useAnimatedDelay } from "../../hooks/useAnimatedDelay";
 import IconClosePlus from "../../icons/IconClosePlus";
