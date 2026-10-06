@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from "react-redux"
-import { store } from "./store/index.js"
+import { store } from "./store/index.ts"
 import { ThemeProvider } from './context/ThemeProvider.tsx'
 import { LanguageProvider } from './context/LanguageProvider.tsx'
 import './index.css'
