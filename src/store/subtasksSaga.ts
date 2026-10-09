@@ -45,11 +45,12 @@ function* toggleSubtaskSaga(action: ReturnType<typeof toggleSubtaskRequest>) {
 function* editSubtaskSaga(action: ReturnType<typeof editSubtaskRequest>) {
   const { subtaskId, newTitle } = action.payload;
   try {
-    const { error: editSubtaskError } = yield supabase
+    const { error: editSubtaskError } = yield* call(async () => {
+      return await supabase
       .from("subtasks")
       .update({ title: newTitle })
       .eq("id", subtaskId)
-
+    })
     if (editSubtaskError) throw editSubtaskError;
 
     yield* put(editSubtaskSuccess());
@@ -62,10 +63,12 @@ function* deleteSubtaskSaga(action: ReturnType<typeof deleteSubtaskRequest>) {
   const { taskId, subtaskId } = action.payload;
 
   try{
-  const { error: deleteSubtaskError } = yield supabase
+  const { error: deleteSubtaskError } = yield* call (async () => {
+    return await supabase
     .from("subtasks")
     .delete()
-    .eq("id", subtaskId);
+    .eq("id", subtaskId)
+  });
 
   if (deleteSubtaskError) throw deleteSubtaskError;
   

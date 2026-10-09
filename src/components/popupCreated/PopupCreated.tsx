@@ -24,7 +24,7 @@ function PopupCreated({ onClose }: PopupProps) {
                 onClick={ 
                     () => {
                         onClose()
-                        navigate("/tasks")
+                        void navigate("/tasks")
                     }
                 }
                 >

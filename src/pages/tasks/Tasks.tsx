@@ -1,25 +1,24 @@
-import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 
 import {completeTaskRequest, deleteTaskRequest, editTaskRequest } from "../../store/taskSlice";
 import { toggleSubtaskRequest } from "../../store/subtasksSlice";
 
-import { useTaskValidation } from "../../hooks/useTaskValidation";
-import { useDeleteTask } from "../../hooks/useDeleteTask.js";
+import { useDeleteTask } from "../../hooks/useDeleteTask";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 
-import { useLanguage } from "../../context/languageContext";
+import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
 
 import { isTaskFailed } from "../../utils/deadline";
 
-import TaskItem from "../../components/taskItem/TaskItem.jsx";
+import TaskItem from "../../components/taskItem/TaskItem";
 import ModalImage from "../../components/modalImage/ModalImage";
 import SubtasksModal from "../../components/subtasksModal/SubtasksModal";
 import PopupCompleted from "../../components/popupCompleted/PopupCompleted";
 import PopupDoneLimit from "../../components/popupDoneLimit/PopupDoneLimit";
 import FailedTasksPanel from "../../components/failedTasksPanel/FailedTasksPanel";
-import Portal from "../../components/portal/Portal.jsx";
+import Portal from "../../components/portal/Portal";
 
 import "./tasks.css"
 
@@ -27,36 +26,38 @@ const DONE_ANIMATION_MS = 600;
 const POPUP_DURATION_MS = 3000;
 const DONE_LIMIT = 15;
 
-function Tasks() {
-    const dispatch = useDispatch();
+type PopupType = "completed" | "doneLimit" | null;
 
-    const rawTasks = useSelector((s) => s.tasks?.tasks);
+function Tasks() {
+    const dispatch = useAppDispatch();
+
+    const rawTasks = useAppSelector((s) => s.tasks.tasks);
     const listTasks = useMemo(
         () => (rawTasks ?? []).filter((task) => task?.id != null),
         [rawTasks]
     );
 
-    const subtasksByTaskId = useSelector((s) => s.subtasks.byTaskId);
-    const completedTasksCount = useSelector((s) => s.tasks.completedTasks.length);
+    const subtasksByTaskId = useAppSelector((s) => s.subtasks.byTaskId);
+    const completedTasksCount = useAppSelector((s) => s.tasks.completedTasks.length);
      
-    const [selectedTaskId, setSelectedTaskId] = useState(null);
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const selectedTask = useMemo(
         () => listTasks.find((t) => t.id === selectedTaskId) ?? null,
         [listTasks, selectedTaskId]
     );
     
-    const subtasksData = subtasksByTaskId[selectedTaskId] ?? null;
-    const [checkMarkId, setCheckMarkId] = useState(null);
-    const [popup, setPopup] = useState(null);
-    const [nowTime, setNowTime] = useState(() => new Date());
+    const subtasksData = selectedTaskId ? subtasksByTaskId[selectedTaskId] ?? null : null;
+    const [checkMarkId, setCheckMarkId] = useState<string | null>(null);
+    const [popup, setPopup] = useState<PopupType>(null);
+    const [nowTime, setNowTime] = useState<Date>(() => new Date());
 
     const [isOpenSubModal, setIsOpenSubModal] = useState(false);
-    const [openImage, setOpenImage] = useState(null);
+    const [openImage, setOpenImage] = useState<string | null>(null);
     const [isFailedTasksOpen, setIsFailedTasksOpen] = useState(false);
     
     const { activeTasks, failedTasks } = useMemo(() => {
-        const active = [];
-        const failed = [];
+        const active: typeof listTasks = [];
+        const failed: typeof listTasks = [];
         for (const task of listTasks ) {
             (isTaskFailed(task, nowTime) ? failed : active).push(task);
         }
@@ -75,7 +76,7 @@ function Tasks() {
     }, []);
 
     // prevent duplicate dispatch on rapid double-click
-    const toggleTimerRef = useRef(null);
+    const toggleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     useEffect(() => {
         return () => {
             if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
@@ -90,17 +91,14 @@ function Tasks() {
     const location = useLocation();
     const isActive = location.pathname === '/tasks';
 
-    // validation
-    const { validateTask, validateSubtask } = useTaskValidation(t);
-
     // subtask completed
-    const toggleSubtask = useCallback((taskId, subtaskId) => {
-        if (String(subtaskId).includes("_sub_") && String(subtaskId).startsWith("temp_")) return;
+    const toggleSubtask = useCallback((taskId: string, subtaskId: string) => {
+        if (subtaskId.includes("_sub_") && subtaskId.startsWith("temp_")) return;
         dispatch(toggleSubtaskRequest({ taskId, subtaskId }));
     }, [dispatch]);
 
     // open modal
-    const openSubtasks = useCallback((taskId) => {
+    const openSubtasks = useCallback((taskId: string) => {
         setSelectedTaskId(taskId);
         setIsOpenSubModal(true);
     }, []);
@@ -112,7 +110,7 @@ function Tasks() {
     }, []);
 
     // task completed
-    const toggleTask = useCallback((taskId) => {
+    const toggleTask = useCallback((taskId: string) => {
         if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
 
         setCheckMarkId(taskId);
@@ -125,7 +123,7 @@ function Tasks() {
     }, [dispatch]);
 
     // task edit
-    const handleSaveEdit = useCallback((taskId, newTitle) => {
+    const handleSaveEdit = useCallback((taskId: string, newTitle: string) => {
         dispatch(editTaskRequest({ id: taskId, newText: newTitle }));
     }, [dispatch]);
 
@@ -135,7 +133,7 @@ function Tasks() {
     );
 
     // done limit
-    const doneLimitTask = useCallback((taskId) => {
+    const doneLimitTask = useCallback((taskId: string) => {
         if (completedTasksCount >= DONE_LIMIT) {
             setPopup("doneLimit");
             return;
@@ -147,7 +145,7 @@ function Tasks() {
     useEffect(() => {
         if (!popup) return;
         const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
-        return() => clearTimeout(timer);
+        return () => clearTimeout(timer);
     }, [popup]);
 
     // close subModal if not subtasks
@@ -161,7 +159,7 @@ function Tasks() {
         }
     }, [subtasksByTaskId, selectedTaskId, onClose]);
 
-    const handleOpenImage = useCallback((src) => setOpenImage(src), []);
+    const handleOpenImage = useCallback((src: string) => setOpenImage(src), []);
     const handleCloseImage = useCallback(() => setOpenImage(null), []);
 
     return (
@@ -192,10 +190,8 @@ function Tasks() {
                             key={task.id}
                             task={task}
                             index={index}
-                            t={t}
                             checkMarkId={checkMarkId}
                             onToggleComplete={doneLimitTask}
-                            validateTask={validateTask}
                             onOpenImage={handleOpenImage}
                             onOpenSubtasks={openSubtasks}
                             onDeleteTask={requestDelete}
@@ -226,13 +222,10 @@ function Tasks() {
                 selectedTask={selectedTask}
                 subtasksData={subtasksData}
                 toggleSubtask={toggleSubtask}
-                t={t}
-                validateSubtask={validateSubtask}
             />
 
             <FailedTasksPanel 
                 failedTasks={failedTasks}
-                t={t}
                 isOpen={isFailedTasksOpen}
                 onClose={() => setIsFailedTasksOpen(false)}
             />

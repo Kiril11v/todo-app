@@ -1,5 +1,5 @@
 .bin-icon {
-    transform-origin: 50% 15%; /* точка вращения — верх ведра, у крышки */
+    transform-origin: 50% 15%;
 }
 
 .bin-icon.is-shaking {
@@ -16,7 +16,6 @@
     90% { transform: rotate(2deg); }
 }
 
-/* опционально: отдельно "дёргаем" крышку сильнее, будто она приоткрывается */
 .bin-icon.is-shaking .bin-lid {
     animation: bin-lid-pop 0.5s ease-in-out;
     transform-origin: 20% 100%;

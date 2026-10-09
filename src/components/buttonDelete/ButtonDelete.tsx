@@ -1,7 +1,14 @@
 import IconRecycleBin from "../../icons/IconRecycleBin"
 import './buttonDelete.css';
 
-function ButtonDelete({ onDelete, isLocked, isShaking, className = "style-btn" }) {
+interface ButtonDeleteProps {
+    onDelete: () => void;
+    isLocked: boolean;
+    isShaking: boolean;
+    className?: string;
+}
+
+function ButtonDelete({ onDelete, isLocked, isShaking, className = "style-btn" }: ButtonDeleteProps) {
     return (
         <button
             className={className}

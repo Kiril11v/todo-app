@@ -5,7 +5,7 @@ import { translations } from "../../context/translations";
 
 const dispatchMock = vi.fn();
 
-let mockCompletedTasks = [
+const mockCompletedTasks = [
   {
     id: 1,
     title: "Completed task",

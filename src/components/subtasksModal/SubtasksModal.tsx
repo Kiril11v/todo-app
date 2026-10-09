@@ -1,20 +1,24 @@
 import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { useDispatch } from "react-redux";
 
-import { useLanguage } from "../../context/languageContext";
 import { translations } from "../../context/translations";
 
 import { deleteSubtaskRequest, editSubtaskRequest } from "../../store/subtasksSlice";
+import { useAppDispatch } from "../../store/hooks";
 
-import { useFixedHeightEdit } from "../../hooks/useFixedHeightEdit"
-import { useAnimatedDelay } from "../../hooks/useAnimatedDelay"
+import { useFixedHeightEdit } from "../../hooks/useFixedHeightEdit";
+import { useAnimatedDelay } from "../../hooks/useAnimatedDelay";
+import { useLanguage } from "../../hooks/useLanguage";
+
+import { validateSubtask, type SubtaskValidationError } from "../../utils/validation";
+
+import type { Task, Subtask } from "../../types/task";
 
 import ButtonDelete from "../buttonDelete/ButtonDelete";
 
 import IconClosePlus from "../../icons/IconClosePlus";
 
-import './subtasksModal.css'
+import './subtasksModal.css';
 
 const CLOSE_ANIMATION_CLASS = 'closingModal';
 const CLOSE_ANIMATION_MS = 350;
@@ -22,48 +26,60 @@ const DELETE_ANIMATION_MS = 500;
 const ERROR_DISPLAY_MS = 3000;
 
 
+interface SubtasksData {
+    items: Subtask[];
+}
+
+interface SubtasksModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedTask: Task | null;
+    subtasksData: SubtasksData | null;
+    toggleSubtask: (taskId: string, subtaskId: string) => void;
+}
+
 export default function SubtasksModal({ 
     isOpen,
     onClose,
     selectedTask,
     subtasksData,
-    validateSubtask,
     toggleSubtask,
-})
-    {
-    const dispatch = useDispatch();  
+}: SubtasksModalProps) {
+    const dispatch = useAppDispatch();  
     const { language } = useLanguage();
     const { fixedHeight, lockHeight, unlockHeight } = useFixedHeightEdit();
     const { ref: btnRef, trigger: btnTrigger } = useAnimatedDelay(CLOSE_ANIMATION_CLASS, CLOSE_ANIMATION_MS);
     const { ref: btnRefBottom, trigger: triggerBottom } = useAnimatedDelay(CLOSE_ANIMATION_CLASS, CLOSE_ANIMATION_MS);
 
-    const [editingId, setEditingId] = useState(null);
+    const [editingId, setEditingId] = useState<string | null>(null);
     const [editValue, setEditValue] = useState("");
-    const [error, setError] = useState(null);
-    const [deletingSubtaskId, setDeletingSubtaskId] = useState(null);
+    const [error, setError] = useState<SubtaskValidationError | null>(null);
+    const [deletingSubtaskId, setDeletingSubtaskId] = useState<string | null>(null);
     const isDeletingRef = useRef(false);
 
-    const deleteSubtask = useCallback((subtaskId) => {
-        if (isDeletingRef.current) return;
+    const selectedTaskId = selectedTask?.id;
+
+    const deleteSubtask = useCallback((subtaskId: string) => {
+        if (isDeletingRef.current || !selectedTaskId) return;
 
         isDeletingRef.current = true;
         setDeletingSubtaskId(subtaskId);
 
         setTimeout(() => {
-            dispatch(deleteSubtaskRequest({ taskId: selectedTask.id, subtaskId }));
+            dispatch(deleteSubtaskRequest({ taskId: selectedTaskId, subtaskId }));
             setDeletingSubtaskId(null);
             isDeletingRef.current = false;
         }, DELETE_ANIMATION_MS);
-    }, [dispatch, selectedTask?.id]);
+    }, [dispatch, selectedTaskId]);
 
-    const startEdit = useCallback((sub) => {
+    const startEdit = useCallback((sub: Subtask) => {
         lockHeight(`sub-${sub.id}`);
         setEditingId(sub.id);
         setEditValue(sub.title);
         setError(null);
     }, [lockHeight]);
 
-    const finishEdit = useCallback((taskId, subtaskId) => {
+    const finishEdit = useCallback((taskId: string, subtaskId: string) => {
         unlockHeight();
  
         if (!editValue.trim()) {
@@ -91,7 +107,7 @@ export default function SubtasksModal({
             })
         );
         setEditingId(null);
-    }, [dispatch, editValue, unlockHeight, validateSubtask]);
+    }, [dispatch, editValue, unlockHeight]);
 
     const isDeleteLocked = deletingSubtaskId !== null;
 
@@ -100,7 +116,7 @@ export default function SubtasksModal({
     const t = translations[language];
     
     const { items } = subtasksData;
-    const isCompletedTask = Boolean(selectedTask?.completedAt);
+    const isCompletedTask = Boolean(selectedTask.completed_at);
 
     return (
         <Dialog open={isOpen} onClose = {onClose} className="relative z-50 ubuntu-regular">
@@ -122,7 +138,7 @@ export default function SubtasksModal({
                                 <li 
                                 key={sub.id} 
                                 id={`sub-${sub.id}`}
-                                style={editingId === sub.id ? { height: fixedHeight } : {}}
+                                style={editingId === sub.id && fixedHeight ? { height: fixedHeight } : undefined}
                                 className={`flex gap-2 items-start justify-between w-full border relative list-item-subtask p-2 text-white break-words-hyphens ${
                                     sub.completed
                                     ? "glow-card-subtask-done"

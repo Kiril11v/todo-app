@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "../../context/languageContext";
+import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
 
-function PopupDoneLimit({ onClose }) {
+interface PopupProps {
+    onClose: () => void;
+}
+
+function PopupDoneLimit({ onClose }: PopupProps) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = translations[language];
@@ -19,7 +23,7 @@ function PopupDoneLimit({ onClose }) {
                     className="popup-btn popup-btn-tasks-limit btn-style"
                     onClick={() => {
                         onClose()
-                        navigate("/done")
+                        void navigate("/done")
                     }}
                 >
                     {t.popupDoneLimitBtn}

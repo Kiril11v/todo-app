@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom"
-import { useLanguage } from "../../context/languageContext";
+import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
 
-function CompletedPopup ({ onClose }) {
+interface PopupProps {
+    onClose: () => void;
+}
+
+function CompletedPopup ({ onClose }: PopupProps) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = translations[language];
@@ -18,7 +22,7 @@ function CompletedPopup ({ onClose }) {
                 className="popup-btn-tasks-completed btn-style"
                 onClick={() => {
                     onClose()
-                    navigate("/done")
+                    void navigate("/done")
                 }}
                 >
                     {t.popupCompletedBtn}

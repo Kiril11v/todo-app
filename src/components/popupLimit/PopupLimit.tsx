@@ -23,7 +23,7 @@ function PopupLimit({ onClose }: PopupProps) {
                     className="popup-btn popup-btn-tasks-limit btn-style"
                     onClick={() => {
                         onClose()
-                        navigate("/tasks")
+                        void navigate("/tasks")
                     }}
                 >
                     {t.popupLimitBtn}

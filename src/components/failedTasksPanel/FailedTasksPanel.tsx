@@ -1,25 +1,32 @@
-import { useState, useRef } from "react";
-import { useDispatch } from "react-redux";
 import { deleteTaskRequest } from "../../store/taskSlice";
+import { useAppDispatch } from "../../store/hooks";
 
-import { useDeleteTask } from "../../hooks/useDeleteTask.js";
+import { useDeleteTask } from "../../hooks/useDeleteTask";
+import { useLanguage } from "../../hooks/useLanguage";
 
-import ButtonDelete from "../../components/buttonDelete/ButtonDelete.jsx";
-import Portal from "../portal/Portal.jsx";
+import { translations } from "../../context/translations";
 
-import IconRecycleBin from "../../icons/IconRecycleBin";
-import IconClockFailedTasks from "../../icons/IconClockFailedTasks";
-import IconClosePlus from "../../icons/IconClosePlus";
+import type { Task } from "../../types/task";
+
+import ButtonDelete from "../buttonDelete/ButtonDelete";
+import Portal from "../portal/Portal";
+
+import IconClockFailedTasks from "../../icons/IconClockFailedTasks.jsx";
+import IconClosePlus from "../../icons/IconClosePlus.jsx";
 
 import './failedTasksPanel.css'
 
-function FailedTasksPanel({ failedTasks, t, isOpen, onClose }) {
-   
+interface FailedTasksPanelProps {
+    failedTasks: Task[];
+    isOpen: boolean;
+    onClose: () => void;
+}
 
-    const dispatch = useDispatch();
+function FailedTasksPanel({ failedTasks, isOpen, onClose }: FailedTasksPanelProps) {
+    const dispatch = useAppDispatch();
 
-    const [deletingAnimationId, setDeletingAnimationId] = useState(null);
-    const isDeletingRef = useRef(false);
+    const { language } = useLanguage();
+    const t = translations[language];
 
     const { requestDelete, isLocked, isDeletingItem } = useDeleteTask(
         (id) => dispatch(deleteTaskRequest(id))
@@ -48,13 +55,12 @@ function FailedTasksPanel({ failedTasks, t, isOpen, onClose }) {
                     {failedTasks.map((task) => (
                         <li key={task.id} className="rounded-3xl border-2 text-white glow-card p-3">
                             <div className="flex justify-between items-start">
-                                <div className="">
+                                <div>
                                     <IconClockFailedTasks />
                                 </div>
-                                <div className="">
+                                <div>
                                     <p className="break-words-hyphens">{task.title}</p>
                                 </div>
-                                {/* btn delete */}
                                     <ButtonDelete
                                         onDelete={() => requestDelete(task.id)}
                                         isLocked={isLocked}

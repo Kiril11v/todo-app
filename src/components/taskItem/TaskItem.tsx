@@ -1,21 +1,48 @@
-import { memo, useState, useRef, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { memo, useState, useMemo } from "react";
 
-import ButtonDelete from "../buttonDelete/ButtonDelete";
+import { useAppSelector } from "../../store/hooks";
 
 import { useFixedHeightEdit } from "../../hooks/useFixedHeightEdit";
+import { useLanguage } from "../../hooks/useLanguage";
+
+import { translations } from "../../context/translations";
+
+import { validateTask, type TaskValidationError } from "../../utils/validation";
+import { formatDeadline } from "../../utils/deadline";
+
+import type { Task } from "../../types/task";
+
+import ButtonDelete from "../buttonDelete/ButtonDelete";
 
 import IconRename from "../../icons/IconRename";
 import IconImageTask from "../../icons/IconImageTask";
 
-import { formatDeadline } from "../../utils/deadline";
+
+
+const ERROR_DISPLAY_MS = 2000;
+
+interface EditError {
+    id: string;
+    message: TaskValidationError;
+}
+
+interface TaskItemProps {
+    task: Task;
+    index: number;
+    checkMarkId: string | null;
+    onToggleComplete: (taskId: string) => void;
+    onSaveEdit: (taskId: string, newTitle: string) => void;
+    onOpenImage: (src: string) => void;
+    onOpenSubtasks: (taskId: string) => void;
+    onDeleteTask: (taskId: string) => void;
+    isLocked: boolean;
+    isDeletingItem: (id: string) => boolean;
+}
 
 function TaskItem({
     task,
     index,
-    t,
     checkMarkId,
-    validateTask,
     onToggleComplete,
     onSaveEdit,
     onOpenImage,
@@ -23,9 +50,12 @@ function TaskItem({
     onDeleteTask,
     isLocked,
     isDeletingItem,
-}) {
+}: TaskItemProps) {
+    const { language } = useLanguage();
+    const t = translations[language];
+
     const [isEditing, setIsEditing] = useState(false);
-    const [editError, setEditError] = useState({ id: null, message: null });
+    const [editError, setEditError] = useState<EditError | null>(null);
     const [editValue, setEditValue] = useState(task.title);
     const { fixedHeight, lockHeight, unlockHeight } = useFixedHeightEdit();
 
@@ -41,7 +71,7 @@ function TaskItem({
         unlockHeight();
         setIsEditing(false);
         setEditValue(task.title);
-        setEditError({ id: null, message: null });
+        setEditError(null);
     };
     // helper for validation and save edit task 
     const handleSaveEdit = () => {
@@ -54,16 +84,16 @@ function TaskItem({
         if (errorKey) {
             setEditError({ id: task.id, message: errorKey });
             setIsEditing(false);
-            setTimeout(() => setEditError({ id: null, message: null }), 2000);
+            setTimeout(() => setEditError(null), ERROR_DISPLAY_MS);
             return;
         }
 
         onSaveEdit(task.id, editValue.trim());
         setIsEditing(false);
-        setEditError({ id: null, message: null });
-    }
+        setEditError(null);
+    };
 
-    const taskSub = useSelector((s) => s.subtasks.byTaskId[task.id]);
+    const taskSub = useAppSelector((s) => s.subtasks.byTaskId[task.id]);
 
     const { completedCount, totalCount } = useMemo(() => {
         const items = taskSub?.items ?? [];
@@ -73,10 +103,12 @@ function TaskItem({
         };
     }, [taskSub]);
 
+    const imageUrl = task.image_url;
+
     return (
         <li
             id={`task-${task.id}`}
-            style={isEditing ? { height: fixedHeight } : {}}
+            style={isEditing && fixedHeight ? { height: fixedHeight } : undefined}
             className="p-3 relative task-border"
         >
             {/* deadline */}
@@ -138,8 +170,8 @@ function TaskItem({
                 </div>
                 <div className="flex gap-3 flex-col sm:flex-row items-center justify-center">
                     {/* btn image */}
-                    {task.image_url && (
-                        <button className="style-btn" onClick={() => onOpenImage(task.image_url)}>
+                    {imageUrl && (
+                        <button className="style-btn" onClick={() => onOpenImage(imageUrl)}>
                             <IconImageTask />
                         </button>
                     )}
@@ -158,7 +190,7 @@ function TaskItem({
             <div className="flex flex-col items-center relative right-4">
                 <div className="flex justify-center items-center relative">
                     {/* error */}
-                    {editError.id === task.id && (
+                    {editError && editError.id === task.id && (
                         <p className="text-red-500 text-sm absolute bottom-0 whitespace-nowrap shrink-0">
                             {t[editError.message]}
                         </p>

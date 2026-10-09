@@ -1,27 +1,34 @@
 import Portal from "../portal/Portal";
 
-function ModalImage({ src, onClose }) {
+interface ModalImageProps {
+    src: string | null;
+    onClose: () => void;
+}
+
+function ModalImage({ src, onClose }: ModalImageProps) {
     if (!src) return null;
 
     return (
         <Portal>
-            <div 
+            <div
                 className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
                 onClick={onClose}
             >
                 <button
+                    type="button"
                     className="absolute top-4 right-4 text-white text-2xl"
                     onClick={onClose}
                 >
                     ✕
                 </button>
-                <img 
+                <img
                     src={src}
+                    alt=""
                     onClick={(e) => e.stopPropagation()}
                     className="max-w-[90%] max-h-[90%] object-contain rounded-lg"
                 />
             </div>
-        </Portal> 
+        </Portal>
     );
 }
 

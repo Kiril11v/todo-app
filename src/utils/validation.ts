@@ -16,7 +16,7 @@ export function validateTask(value?: string | null): TaskValidationError | undef
     return undefined;
 }
 
-export function validateSubtask(value?: string | null): TaskValidationError | undefined {
+export function validateSubtask(value?: string | null): SubtaskValidationError | undefined {
     const trimmed = value?.trim() ?? "";
     if (!trimmed) return undefined;
     if (trimmed.length < 5) return "validateTaskMin5Characters";

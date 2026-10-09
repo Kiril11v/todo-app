@@ -11,7 +11,7 @@ import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { translations } from "../../context/translations";
 
 import { useImageAttachment } from "../../hooks/useImageAttachment";
-import { useLanguage } from "../../hooks/useLanguage"
+import { useLanguage } from "../../hooks/useLanguage";
 
 import { validateTask, type TaskValidationError } from "../../utils/validation";
 
@@ -132,7 +132,11 @@ function Inbox() {
             </h1>
 
             <Form<InboxFormValues> onSubmit={onSubmit} mutators={{ ...arrayMutators }} render={({ handleSubmit, form, submitting, pristine }) => (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        void handleSubmit();
+                    }}
+                    >
                         <Field<string> name="task" validate={validateTask}>
                             {({ input, meta }) => (
                                 <div className="flex flex-col">
