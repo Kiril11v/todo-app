@@ -1,17 +1,17 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { vi } from "vitest";
 import Tasks from "./Tasks";
-import { translations } from "../../context/translations"
+import { translations } from "../../context/translations";
 
 // mock dispatch
 const dispatchMock = vi.fn();
 
 const mockTasks = [
-  { 
+  {
     id: 1,
     title: "Test task",
     subtasks: [{}, {}, {}],
-  }
+  },
 ];
 
 const mockSubCompleted = {
@@ -24,7 +24,7 @@ vi.mock("react-redux", () => ({
   useSelector: (fn) =>
     fn({
       tasks: { tasks: mockTasks },
-      subtasks: { completed: mockSubCompleted }
+      subtasks: { completed: mockSubCompleted },
     }),
 }));
 
@@ -52,11 +52,11 @@ vi.mock("../../components/popupCompleted/PopupCompleted", () => ({
   default: () => <div>PopupCompleted</div>,
 }));
 
-import { 
-    completeTaskRequest,
-    deleteTaskRequest,
-    editTaskRequest,
- } from "../../store/taskSlice";
+import {
+  completeTaskRequest,
+  deleteTaskRequest,
+  editTaskRequest,
+} from "../../store/taskSlice";
 
 describe("Tasks component", () => {
   beforeEach(() => {
@@ -73,86 +73,85 @@ describe("Tasks component", () => {
     const checkbox = screen.getByRole("checkbox", { hidden: true });
 
     act(() => {
-        fireEvent.click(checkbox);
-        vi.runAllTimers();
-    })
-    
+      fireEvent.click(checkbox);
+      vi.runAllTimers();
+    });
+
     expect(dispatchMock).toHaveBeenCalled();
     expect(completeTaskRequest).toHaveBeenCalledWith(1);
   });
-  
+
   it("task deleted", () => {
     render(<Tasks />);
 
     const deleteBtn = screen.getAllByRole("button")[1];
 
     act(() => {
-        fireEvent.click(deleteBtn);
-    })
-    
+      fireEvent.click(deleteBtn);
+    });
+
     expect(dispatchMock).toHaveBeenCalled();
     expect(deleteTaskRequest).toHaveBeenCalledWith(1);
   });
 
   it("task has been edited", () => {
-  render(<Tasks />);
+    render(<Tasks />);
 
-  const editBtn = screen.getAllByRole("button")[0];
+    const editBtn = screen.getAllByRole("button")[0];
 
-  act(() => {
-    fireEvent.click(editBtn);
+    act(() => {
+      fireEvent.click(editBtn);
+    });
+
+    const textarea = screen.getByDisplayValue("Test task");
+
+    expect(textarea).toBeInTheDocument();
   });
 
-  const textarea = screen.getByDisplayValue("Test task");
+  it("shows error if less than 5 characters", () => {
+    render(<Tasks />);
 
-  expect(textarea).toBeInTheDocument();
-});
+    const t = translations.en;
 
-it("shows error if less than 5 characters", () => {
-  render(<Tasks />);
+    const editBtn = screen.getAllByRole("button")[0];
 
-  const t = translations.en;
+    act(() => {
+      fireEvent.click(editBtn);
+    });
 
-  const editBtn = screen.getAllByRole("button")[0];
+    const textarea = screen.getByDisplayValue("Test task");
 
-  act(() => {
-    fireEvent.click(editBtn);
+    act(() => {
+      fireEvent.change(textarea, { target: { value: "abc" } });
+      fireEvent.blur(textarea);
+    });
+
+    expect(screen.getByText(t.validateTaskMin5Characters)).toBeInTheDocument();
+
+    expect(editTaskRequest).not.toHaveBeenCalled();
   });
 
-  const textarea = screen.getByDisplayValue("Test task");
+  it("shows error if more than 50 characters", () => {
+    render(<Tasks />);
 
-  act(() => {
-    fireEvent.change(textarea, { target: { value: "abc" } });
-    fireEvent.blur(textarea);
+    const t = translations.en;
+
+    const editBtn = screen.getAllByRole("button")[0];
+
+    act(() => {
+      fireEvent.click(editBtn);
+    });
+
+    const textarea = screen.getByDisplayValue("Test task");
+
+    const longText = "a".repeat(51);
+
+    act(() => {
+      fireEvent.change(textarea, { target: { value: longText } });
+      fireEvent.blur(textarea);
+    });
+
+    expect(screen.getByText(t.validateTaskMax50Characters)).toBeInTheDocument();
+    expect(editTaskRequest).not.toHaveBeenCalled();
   });
-
-  expect(screen.getByText(t.validateTaskMin5Characters)).toBeInTheDocument();
-
-  expect(editTaskRequest).not.toHaveBeenCalled();
-});
-
-it("shows error if more than 50 characters", () => {
-  render(<Tasks />);
-
-  const t = translations.en;
-
-  const editBtn = screen.getAllByRole("button")[0];
-
-  act(() => {
-    fireEvent.click(editBtn);
-  });
-
-  const textarea = screen.getByDisplayValue("Test task");
-
-  const longText = "a".repeat(51);
-
-  act(() => {
-    fireEvent.change(textarea, { target: { value: longText } });
-    fireEvent.blur(textarea);
-  });
-
-  expect(screen.getByText(t.validateTaskMax50Characters)).toBeInTheDocument();
-  expect(editTaskRequest).not.toHaveBeenCalled();
-});
-
 });

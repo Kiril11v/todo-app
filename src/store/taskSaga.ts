@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 import type { Database } from "../types/supabase";
 import type { Task } from "../types/task";
 
-import { removeTaskImages } from "../helpers/helperRemoveImage"
+import { removeTaskImages } from "../helpers/helperRemoveImage";
 import { createTaskWithSubtasks } from "../api/rpc/createTaskWithSubtasks";
 import {
   loadTasksRequest,
@@ -41,7 +41,11 @@ import {
   restoreArchiveSuccess,
   restoreArchiveFailure,
 } from "./taskSlice";
-import { createSubtaskSuccess, createSubtaskFailure, loadSubtasksSuccess } from "./subtasksSlice";
+import {
+  createSubtaskSuccess,
+  createSubtaskFailure,
+  loadSubtasksSuccess,
+} from "./subtasksSlice";
 
 const ARCHIVE_MAX_COUNT = 15;
 
@@ -57,9 +61,9 @@ function getErrorMessage(e: unknown): string {
 function* loadTasksSaga() {
   try {
     const { data, error } = yield* call(async () => {
-      return await supabase.from('tasks').select('*, subtasks(*)')
+      return await supabase.from("tasks").select("*, subtasks(*)");
     });
- 
+
     if (error) throw error;
 
     const tasks: Task[] = data.map((t) => ({
@@ -75,59 +79,70 @@ function* loadTasksSaga() {
     yield* put(loadTasksSuccess(tasks));
 
     for (const task of data) {
-      yield* put(loadSubtasksSuccess({
-        taskId: task.id,
-        subtasks: task.subtasks || [],
-      }));
+      yield* put(
+        loadSubtasksSuccess({
+          taskId: task.id,
+          subtasks: task.subtasks || [],
+        }),
+      );
     }
   } catch (e) {
     yield* put(loadTasksFailure(getErrorMessage(e)));
   }
 }
 
-function* createTaskWithSubtasksSaga(action: ReturnType<typeof createTaskRequest>) {
-  const { tempId, title, subtasks, imageFile, imagePreview, deadline } = action.payload;
+function* createTaskWithSubtasksSaga(
+  action: ReturnType<typeof createTaskRequest>,
+) {
+  const { tempId, title, subtasks, imageFile, imagePreview, deadline } =
+    action.payload;
 
   try {
     let image_url: string | null = null;
 
     if (imageFile) {
-      const { data: { user } } = yield* call(() => supabase.auth.getUser());
+      const {
+        data: { user },
+      } = yield* call(() => supabase.auth.getUser());
       if (!user) throw new Error("Not authenticated");
 
       const fileExt = imageFile.name.split(".").pop();
       const filePath = `${user.id}/task_${Date.now()}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = yield* call(() => supabase
-        .storage
-        .from("task-images")
-        .upload(filePath, imageFile)
-      ); 
+      const { data: uploadData, error: uploadError } = yield* call(() =>
+        supabase.storage.from("task-images").upload(filePath, imageFile),
+      );
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage.from("task-images").getPublicUrl(uploadData.path);
+      const { data: urlData } = supabase.storage
+        .from("task-images")
+        .getPublicUrl(uploadData.path);
 
       image_url = urlData.publicUrl;
     }
 
-    const result = yield* call(() => createTaskWithSubtasks({
-      p_title: title,
-      p_image_url: image_url,
-      p_deadline: deadline,
-      p_subtasks: subtasks?.length ? subtasks : []
-    }));
+    const result = yield* call(() =>
+      createTaskWithSubtasks({
+        p_title: title,
+        p_image_url: image_url,
+        p_deadline: deadline,
+        p_subtasks: subtasks?.length ? subtasks : [],
+      }),
+    );
 
     yield* put(createTaskSuccess({ tempId, task: result.task }));
     if (result.subtasks?.length || subtasks?.length) {
-      yield* put(createSubtaskSuccess({ 
-        tempId, 
-        taskId: result.task.id, 
-        subtasks: result.subtasks
-       }));
+      yield* put(
+        createSubtaskSuccess({
+          tempId,
+          taskId: result.task.id,
+          subtasks: result.subtasks,
+        }),
+      );
     }
   } catch (e) {
-      const error = getErrorMessage(e);
+    const error = getErrorMessage(e);
     yield* put(createTaskFailure({ tempId, error }));
     if (subtasks?.length) {
       yield* put(createSubtaskFailure({ taskId: tempId, error }));
@@ -141,13 +156,15 @@ function* completeTaskSaga(action: ReturnType<typeof completeTaskRequest>) {
   try {
     const taskId = action.payload;
 
-    const { data: existingTask, error: existingTaskError } = yield* call(async () => {
-      return await supabase 
-        .from('tasks')
-        .select('deadline')
-        .eq('id', taskId)
-        .single()
-    });
+    const { data: existingTask, error: existingTaskError } = yield* call(
+      async () => {
+        return await supabase
+          .from("tasks")
+          .select("deadline")
+          .eq("id", taskId)
+          .single();
+      },
+    );
 
     if (existingTaskError) throw existingTaskError;
 
@@ -161,65 +178,66 @@ function* completeTaskSaga(action: ReturnType<typeof completeTaskRequest>) {
 
     const { data: task, error: taskError } = yield* call(async () => {
       return await supabase
-        .from('tasks')
+        .from("tasks")
         .update(updatePayload)
-        .eq('id', taskId)
+        .eq("id", taskId)
         .select()
-        .single()
+        .single();
     });
 
     if (taskError) throw taskError;
 
     const { error: subError } = yield* call(async () => {
       return await supabase
-      .from("subtasks")
-      .update({ completed: true })
-      .eq("task_id", taskId)
-    }); 
+        .from("subtasks")
+        .update({ completed: true })
+        .eq("task_id", taskId);
+    });
 
     if (subError) throw subError;
 
     yield* put(completeTaskSuccess({ task }));
-    
   } catch (e) {
     yield* put(completeTaskFailure(getErrorMessage(e)));
   }
 }
 
 function* deleteTaskSaga(action: ReturnType<typeof deleteTaskRequest>) {
-  try{
+  try {
     const id = action.payload;
 
-    const { data: deletedTask, error: deletedTaskError } = yield* call(async () => {
-      return await supabase
-      .from("tasks")
-      .delete()
-      .eq('id', id)
-      .select('image_url')
-    }); 
+    const { data: deletedTask, error: deletedTaskError } = yield* call(
+      async () => {
+        return await supabase
+          .from("tasks")
+          .delete()
+          .eq("id", id)
+          .select("image_url");
+      },
+    );
 
     if (deletedTaskError) throw deletedTaskError;
 
     yield* call(removeTaskImages, deletedTask);
     yield* put(deleteTaskSuccess(id));
   } catch (e) {
-    yield* put(deleteTaskFailure(getErrorMessage(e)))
+    yield* put(deleteTaskFailure(getErrorMessage(e)));
   }
 }
 
 function* editTaskSaga(action: ReturnType<typeof editTaskRequest>) {
-  try{
+  try {
     const { id, newText } = action.payload;
     const { error: editError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .update({ title: newText })
-      .eq('id', id)
-      .select()
-      .single()
+        .from("tasks")
+        .update({ title: newText })
+        .eq("id", id)
+        .select()
+        .single();
     });
 
-    if (editError) throw editError; 
+    if (editError) throw editError;
 
     yield* put(editTaskSuccess({ id, newText }));
   } catch (e) {
@@ -228,15 +246,17 @@ function* editTaskSaga(action: ReturnType<typeof editTaskRequest>) {
 }
 
 function* clearAllCompletedTaskSaga() {
-  try{
-    const { data, error: clearAllCompletedTasksError } = yield* call(async () => {
-      return await supabase
-      .from('tasks')
-      .delete()
-      .not('completed_at', 'is', null)
-      .is('archived_at', null)
-      .select("image_url")
-    });
+  try {
+    const { data, error: clearAllCompletedTasksError } = yield* call(
+      async () => {
+        return await supabase
+          .from("tasks")
+          .delete()
+          .not("completed_at", "is", null)
+          .is("archived_at", null)
+          .select("image_url");
+      },
+    );
 
     if (clearAllCompletedTasksError) throw clearAllCompletedTasksError;
 
@@ -247,15 +267,17 @@ function* clearAllCompletedTaskSaga() {
   }
 }
 
-function* deleteCompletedTaskSaga(action: ReturnType<typeof deleteCompletedTaskRequest>) {
+function* deleteCompletedTaskSaga(
+  action: ReturnType<typeof deleteCompletedTaskRequest>,
+) {
   try {
     const id = action.payload;
     const { data, error: deleteCompletedTaskError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', id)
-      .select("image_url")
+        .from("tasks")
+        .delete()
+        .eq("id", id)
+        .select("image_url");
     });
 
     if (deleteCompletedTaskError) throw deleteCompletedTaskError;
@@ -264,28 +286,28 @@ function* deleteCompletedTaskSaga(action: ReturnType<typeof deleteCompletedTaskR
     yield* put(deleteCompletedTaskSuccess(id));
   } catch (e) {
     yield* put(deleteCompletedTaskFailure(getErrorMessage(e)));
-  }  
+  }
 }
 
 function* archiveTaskSaga(action: ReturnType<typeof archiveTaskRequest>) {
   try {
     const id = action.payload;
-    
+
     const { error } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .update({ archived_at: new Date().toISOString() })
-      .eq('id', id)
+        .from("tasks")
+        .update({ archived_at: new Date().toISOString() })
+        .eq("id", id);
     });
 
     if (error) throw error;
 
-    const { data: archive, error: archiveError } = yield* call(async() =>{
+    const { data: archive, error: archiveError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .select('id')
-      .not('archived_at', 'is', null)
-      .order('archived_at', { ascending: true })
+        .from("tasks")
+        .select("id")
+        .not("archived_at", "is", null)
+        .order("archived_at", { ascending: true });
     });
 
     if (archiveError) throw archiveError;
@@ -294,12 +316,12 @@ function* archiveTaskSaga(action: ReturnType<typeof archiveTaskRequest>) {
 
     if (archive.length > ARCHIVE_MAX_COUNT) {
       const oldest = archive[0];
-      const { data, error: deleteError } = yield* call(async() => {
+      const { data, error: deleteError } = yield* call(async () => {
         return await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', oldest.id)
-        .select('image_url')
+          .from("tasks")
+          .delete()
+          .eq("id", oldest.id)
+          .select("image_url");
       });
 
       if (deleteError) throw deleteError;
@@ -314,15 +336,17 @@ function* archiveTaskSaga(action: ReturnType<typeof archiveTaskRequest>) {
   }
 }
 
-function* deleteArchiveTaskSaga(action: ReturnType<typeof deleteArchiveTaskRequest>) {
-  try{
+function* deleteArchiveTaskSaga(
+  action: ReturnType<typeof deleteArchiveTaskRequest>,
+) {
+  try {
     const id = action.payload;
     const { data, error: deleteArchiveTaskError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', id)
-      .select("image_url")
+        .from("tasks")
+        .delete()
+        .eq("id", id)
+        .select("image_url");
     });
 
     if (deleteArchiveTaskError) throw deleteArchiveTaskError;
@@ -331,17 +355,17 @@ function* deleteArchiveTaskSaga(action: ReturnType<typeof deleteArchiveTaskReque
     yield* put(deleteArchiveTaskSuccess(id));
   } catch (e) {
     yield* put(deleteArchiveTaskFailure(getErrorMessage(e)));
-  }  
+  }
 }
 
 function* clearArchiveTaskSaga() {
-  try{
+  try {
     const { data, error: clearArchiveTaskError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .delete()
-      .not('archived_at', 'is', null)
-      .select("image_url")
+        .from("tasks")
+        .delete()
+        .not("archived_at", "is", null)
+        .select("image_url");
     });
 
     if (clearArchiveTaskError) throw clearArchiveTaskError;
@@ -353,32 +377,34 @@ function* clearArchiveTaskSaga() {
   }
 }
 
-function* restoreArchiveTaskSaga(action: ReturnType<typeof restoreArchiveRequest>) {
+function* restoreArchiveTaskSaga(
+  action: ReturnType<typeof restoreArchiveRequest>,
+) {
   try {
     const taskId = action.payload;
 
     const { error: subError } = yield* call(async () => {
       return await supabase
-      .from("subtasks")
-      .update({ completed: false })
-      .eq("task_id", taskId)
+        .from("subtasks")
+        .update({ completed: false })
+        .eq("task_id", taskId);
     });
 
     if (subError) throw subError;
 
     const { data: task, error: taskError } = yield* call(async () => {
       return await supabase
-      .from('tasks')
-      .update({
-        archived_at: null,
-        completed_at: null,
-        deadline: null,
-        failed: null,
-        created_at: new Date().toISOString()
-      })
-      .eq('id', taskId)
-      .select('*, subtasks(*)')
-      .single()
+        .from("tasks")
+        .update({
+          archived_at: null,
+          completed_at: null,
+          deadline: null,
+          failed: null,
+          created_at: new Date().toISOString(),
+        })
+        .eq("id", taskId)
+        .select("*, subtasks(*)")
+        .single();
     });
 
     if (taskError) throw taskError;
@@ -395,7 +421,10 @@ export default function* taskSaga() {
   yield* takeLatest(completeTaskRequest.type, completeTaskSaga);
   yield* takeLatest(deleteTaskRequest.type, deleteTaskSaga);
   yield* takeLatest(editTaskRequest.type, editTaskSaga);
-  yield* takeLatest(clearAllCompletedTaskRequest.type, clearAllCompletedTaskSaga);
+  yield* takeLatest(
+    clearAllCompletedTaskRequest.type,
+    clearAllCompletedTaskSaga,
+  );
   yield* takeLatest(deleteCompletedTaskRequest.type, deleteCompletedTaskSaga);
   yield* takeLatest(archiveTaskRequest.type, archiveTaskSaga);
   yield* takeLatest(deleteArchiveTaskRequest.type, deleteArchiveTaskSaga);

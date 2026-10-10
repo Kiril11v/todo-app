@@ -4,7 +4,7 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  
+
   color-scheme: light dark;
 
   font-synthesis: none;
@@ -29,9 +29,9 @@
   --text: white;
   --border-color: white;
   /* icon-theme */
-  --lamp-pouring: #FFC600;
+  --lamp-pouring: #ffc600;
   /* btn save */
-  --btn-save-bg: #0f5a2c;;
+  --btn-save-bg: #0f5a2c;
   --btn-save-hover: #55b448;
   --btn-save-text: #d4ffd4;
   --btn-save-text-hover: black;
@@ -48,12 +48,19 @@
   /* btn-archive-send */
   --btn-send-archive: rgb(140, 140, 140);
   /* btn-rename-task */
-  --btn-rename-color:rgb(129, 129, 224);
+  --btn-rename-color: rgb(129, 129, 224);
   --btn-rename-hover: rgb(52, 52, 185);
   /* task-border-gold */
   --card-shadow-dark: rgba(0, 0, 0, 0.6);
   --task-border-bg: #1a1a1a;
-  --task-border-gradient: linear-gradient(90deg, #caa24a, #fff8dc, #caa24a, #8a6d1f, #caa24a);
+  --task-border-gradient: linear-gradient(
+    90deg,
+    #caa24a,
+    #fff8dc,
+    #caa24a,
+    #8a6d1f,
+    #caa24a
+  );
   /* timer */
   --btn-timer-color: #404040;
   --btn-timer-color-hover: #a1a1a1;
@@ -67,7 +74,7 @@
 .light-theme,
 .light-theme body {
   --text-color: black;
-   /* inputs */
+  /* inputs */
   --input-bg: #3a3a3a;
   --input-text: #f5f5f5;
   --input-placeholder: #aaaaaa;
@@ -78,14 +85,14 @@
   --btn-clear-text: #000;
   --btn-clear-border: #5a86ff;
   /* icon-theme */
-  --lamp-pouring: #D9CDC1;
+  --lamp-pouring: #d9cdc1;
   /* btn save */
   --btn-save-bg: #15863e;
   --btn-save-hover: rgb(24, 101, 46);
   --btn-save-text: black;
   --btn-save-text-hover: white;
   /* settings */
-  --btn-text-archive: #1C274C;
+  --btn-text-archive: #1c274c;
   /* btn-sub */
   --btn-sub-text: black;
   --btn-sub-background: white;
@@ -102,8 +109,15 @@
   /* task-border-gold */
   --card-shadow-dark: rgba(152, 152, 152, 0.9);
   --task-border-bg: #f5f0e6;
-  --task-border-gradient: linear-gradient(90deg, #a8823a, #d9c48f, #a8823a, #6e561f, #a8823a);
-   /* timer */
+  --task-border-gradient: linear-gradient(
+    90deg,
+    #a8823a,
+    #d9c48f,
+    #a8823a,
+    #6e561f,
+    #a8823a
+  );
+  /* timer */
   --btn-timer-color: #757575;
   --btn-timer-color-hover: #404040;
   /* footer-color */
@@ -114,10 +128,12 @@
 }
 
 body {
-  color: var(--text); 
+  color: var(--text);
   display: flex;
   min-width: 320px;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
 }
 
 #bg-layer {
@@ -137,8 +153,8 @@ body {
 }
 
 .dark-theme #bg-layer {
-  background-image: 
-    linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
     url("./assets/bg-black-theme.webp");
 }
 
@@ -146,7 +162,7 @@ body {
   background-image: url("./assets/bg-white-theme.webp");
 }
 
-.break-words-hyphens { 
+.break-words-hyphens {
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
@@ -163,7 +179,7 @@ h1 {
   font-style: normal;
 }
 
-.sekuya-regular:lang(uk) { 
+.sekuya-regular:lang(uk) {
   font-family: "Ubuntu", sans-serif;
   font-weight: 600;
   font-style: normal;

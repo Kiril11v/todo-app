@@ -27,7 +27,10 @@ vi.mock("../../context/LanguageContext", () => ({
 }));
 
 vi.mock("../../store/taskSlice", () => ({
-  deleteCompletedTaskRequest: vi.fn((id) => ({ type: "deleteCompleted", payload: id })),
+  deleteCompletedTaskRequest: vi.fn((id) => ({
+    type: "deleteCompleted",
+    payload: id,
+  })),
   archiveTaskRequest: vi.fn((id) => ({ type: "archive", payload: id })),
   clearAllCompletedTaskRequest: vi.fn(() => ({ type: "clearAll" })),
   archiveOldestTaskRequest: vi.fn(() => ({ type: "archiveOldest" })),

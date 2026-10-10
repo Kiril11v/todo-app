@@ -1,7 +1,11 @@
 import { useLocation } from "react-router-dom";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 
-import {completeTaskRequest, deleteTaskRequest, editTaskRequest } from "../../store/taskSlice";
+import {
+  completeTaskRequest,
+  deleteTaskRequest,
+  editTaskRequest,
+} from "../../store/taskSlice";
 import { toggleSubtaskRequest } from "../../store/subtasksSlice";
 
 import { useDeleteTask } from "../../hooks/useDeleteTask";
@@ -20,7 +24,7 @@ import PopupDoneLimit from "../../components/popupDoneLimit/PopupDoneLimit";
 import FailedTasksPanel from "../../components/failedTasksPanel/FailedTasksPanel";
 import Portal from "../../components/portal/Portal";
 
-import "./tasks.css"
+import "./tasks.css";
 
 const DONE_ANIMATION_MS = 600;
 const POPUP_DURATION_MS = 3000;
@@ -29,208 +33,225 @@ const DONE_LIMIT = 15;
 type PopupType = "completed" | "doneLimit" | null;
 
 function Tasks() {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const rawTasks = useAppSelector((s) => s.tasks.tasks);
-    const listTasks = useMemo(
-        () => (rawTasks ?? []).filter((task) => task?.id != null),
-        [rawTasks]
-    );
+  const rawTasks = useAppSelector((s) => s.tasks.tasks);
+  const listTasks = useMemo(
+    () => (rawTasks ?? []).filter((task) => task?.id != null),
+    [rawTasks],
+  );
 
-    const subtasksByTaskId = useAppSelector((s) => s.subtasks.byTaskId);
-    const completedTasksCount = useAppSelector((s) => s.tasks.completedTasks.length);
-     
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-    const selectedTask = useMemo(
-        () => listTasks.find((t) => t.id === selectedTaskId) ?? null,
-        [listTasks, selectedTaskId]
-    );
-    
-    const subtasksData = selectedTaskId ? subtasksByTaskId[selectedTaskId] ?? null : null;
-    const [checkMarkId, setCheckMarkId] = useState<string | null>(null);
-    const [popup, setPopup] = useState<PopupType>(null);
-    const [nowTime, setNowTime] = useState<Date>(() => new Date());
+  const subtasksByTaskId = useAppSelector((s) => s.subtasks.byTaskId);
+  const completedTasksCount = useAppSelector(
+    (s) => s.tasks.completedTasks.length,
+  );
 
-    const [isOpenSubModal, setIsOpenSubModal] = useState(false);
-    const [openImage, setOpenImage] = useState<string | null>(null);
-    const [isFailedTasksOpen, setIsFailedTasksOpen] = useState(false);
-    
-    const { activeTasks, failedTasks } = useMemo(() => {
-        const active: typeof listTasks = [];
-        const failed: typeof listTasks = [];
-        for (const task of listTasks ) {
-            (isTaskFailed(task, nowTime) ? failed : active).push(task);
-        }
-        return { activeTasks: active, failedTasks: failed };
-    }, [listTasks, nowTime]);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const selectedTask = useMemo(
+    () => listTasks.find((t) => t.id === selectedTaskId) ?? null,
+    [listTasks, selectedTaskId],
+  );
 
-    // refresh deadline time when tab regains visibility
-    useEffect(() => {
-        const handleVisibility = () => {
-            if (document.visibilityState === "visible") {
-                setNowTime(new Date());
-            }
-        };
-        document.addEventListener("visibilitychange", handleVisibility);
-        return () => document.removeEventListener("visibilitychange", handleVisibility);
-    }, []);
+  const subtasksData = selectedTaskId
+    ? (subtasksByTaskId[selectedTaskId] ?? null)
+    : null;
+  const [checkMarkId, setCheckMarkId] = useState<string | null>(null);
+  const [popup, setPopup] = useState<PopupType>(null);
+  const [nowTime, setNowTime] = useState<Date>(() => new Date());
 
-    // prevent duplicate dispatch on rapid double-click
-    const toggleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    useEffect(() => {
-        return () => {
-            if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
-        };
-    }, []);
+  const [isOpenSubModal, setIsOpenSubModal] = useState(false);
+  const [openImage, setOpenImage] = useState<string | null>(null);
+  const [isFailedTasksOpen, setIsFailedTasksOpen] = useState(false);
 
-    // language
-    const { language } = useLanguage();
-    const t = translations[language];
+  const { activeTasks, failedTasks } = useMemo(() => {
+    const active: typeof listTasks = [];
+    const failed: typeof listTasks = [];
+    for (const task of listTasks) {
+      (isTaskFailed(task, nowTime) ? failed : active).push(task);
+    }
+    return { activeTasks: active, failedTasks: failed };
+  }, [listTasks, nowTime]);
 
-    // location for btn failed
-    const location = useLocation();
-    const isActive = location.pathname === '/tasks';
+  // refresh deadline time when tab regains visibility
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setNowTime(new Date());
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
 
-    // subtask completed
-    const toggleSubtask = useCallback((taskId: string, subtaskId: string) => {
-        if (subtaskId.includes("_sub_") && subtaskId.startsWith("temp_")) return;
-        dispatch(toggleSubtaskRequest({ taskId, subtaskId }));
-    }, [dispatch]);
+  // prevent duplicate dispatch on rapid double-click
+  const toggleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
+    };
+  }, []);
 
-    // open modal
-    const openSubtasks = useCallback((taskId: string) => {
-        setSelectedTaskId(taskId);
-        setIsOpenSubModal(true);
-    }, []);
+  // language
+  const { language } = useLanguage();
+  const t = translations[language];
 
-    // close modal
-    const onClose = useCallback(() => {
-        setSelectedTaskId(null);
-        setIsOpenSubModal(false);
-    }, []);
+  // location for btn failed
+  const location = useLocation();
+  const isActive = location.pathname === "/tasks";
 
-    // task completed
-    const toggleTask = useCallback((taskId: string) => {
-        if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
+  // subtask completed
+  const toggleSubtask = useCallback(
+    (taskId: string, subtaskId: string) => {
+      if (subtaskId.includes("_sub_") && subtaskId.startsWith("temp_")) return;
+      dispatch(toggleSubtaskRequest({ taskId, subtaskId }));
+    },
+    [dispatch],
+  );
 
-        setCheckMarkId(taskId);
-        toggleTimerRef.current = setTimeout(() => {
-            dispatch(completeTaskRequest(taskId));
-            toggleTimerRef.current = null;
-            setCheckMarkId(null);
-            setPopup("completed");
-        }, DONE_ANIMATION_MS);
-    }, [dispatch]);
+  // open modal
+  const openSubtasks = useCallback((taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsOpenSubModal(true);
+  }, []);
 
-    // task edit
-    const handleSaveEdit = useCallback((taskId: string, newTitle: string) => {
-        dispatch(editTaskRequest({ id: taskId, newText: newTitle }));
-    }, [dispatch]);
+  // close modal
+  const onClose = useCallback(() => {
+    setSelectedTaskId(null);
+    setIsOpenSubModal(false);
+  }, []);
 
-    // delete Task
-    const { requestDelete, isLocked, isDeletingItem } = useDeleteTask(
-        (id) => dispatch(deleteTaskRequest(id))
-    );
+  // task completed
+  const toggleTask = useCallback(
+    (taskId: string) => {
+      if (toggleTimerRef.current) clearTimeout(toggleTimerRef.current);
 
-    // done limit
-    const doneLimitTask = useCallback((taskId: string) => {
-        if (completedTasksCount >= DONE_LIMIT) {
-            setPopup("doneLimit");
-            return;
-        }
-        toggleTask(taskId);
-    }, [completedTasksCount, toggleTask]);
+      setCheckMarkId(taskId);
+      toggleTimerRef.current = setTimeout(() => {
+        dispatch(completeTaskRequest(taskId));
+        toggleTimerRef.current = null;
+        setCheckMarkId(null);
+        setPopup("completed");
+      }, DONE_ANIMATION_MS);
+    },
+    [dispatch],
+  );
 
-    // timer popup
-    useEffect(() => {
-        if (!popup) return;
-        const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
-        return () => clearTimeout(timer);
-    }, [popup]);
+  // task edit
+  const handleSaveEdit = useCallback(
+    (taskId: string, newTitle: string) => {
+      dispatch(editTaskRequest({ id: taskId, newText: newTitle }));
+    },
+    [dispatch],
+  );
 
-    // close subModal if not subtasks
-    useEffect(() => {
-        if (!selectedTaskId) return;
+  // delete Task
+  const { requestDelete, isLocked, isDeletingItem } = useDeleteTask((id) =>
+    dispatch(deleteTaskRequest(id)),
+  );
 
-        const subtasks = subtasksByTaskId[selectedTaskId];
+  // done limit
+  const doneLimitTask = useCallback(
+    (taskId: string) => {
+      if (completedTasksCount >= DONE_LIMIT) {
+        setPopup("doneLimit");
+        return;
+      }
+      toggleTask(taskId);
+    },
+    [completedTasksCount, toggleTask],
+  );
 
-        if (subtasks && subtasks.items && subtasks.items.length === 0) {
-            onClose();
-        }
-    }, [subtasksByTaskId, selectedTaskId, onClose]);
+  // timer popup
+  useEffect(() => {
+    if (!popup) return;
+    const timer = setTimeout(() => setPopup(null), POPUP_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [popup]);
 
-    const handleOpenImage = useCallback((src: string) => setOpenImage(src), []);
-    const handleCloseImage = useCallback(() => setOpenImage(null), []);
+  // close subModal if not subtasks
+  useEffect(() => {
+    if (!selectedTaskId) return;
 
-    return (
-        <div className="ubuntu-regular">
-            {/* popups */}
-            {popup && (
-                <Portal>
-                    <div 
-                        className="fixed inset-0 bg-black/40 z-40"
-                        onClick={() => setPopup(null)} 
-                    />
-                    {popup === "doneLimit"  && <PopupDoneLimit onClose={() => setPopup(null)} />}
-                    {popup ==="completed" && <PopupCompleted onClose={() => setPopup(null)} />}
-                </Portal>
-            )}
-            <h1
-                className="sekuya-regular mb-5 text-4xl sm:text-5xl"
-            >
-                {t.tasks}
-            </h1>
+    const subtasks = subtasksByTaskId[selectedTaskId];
 
-            {activeTasks.length === 0 && <p>{t.taskText}</p>}
+    if (subtasks && subtasks.items && subtasks.items.length === 0) {
+      onClose();
+    }
+  }, [subtasksByTaskId, selectedTaskId, onClose]);
 
-            <div className="tasks-croll-area">
-                <ul className="flex flex-col">
-                    {activeTasks.map((task, index) => (
-                        <TaskItem
-                            key={task.id}
-                            task={task}
-                            index={index}
-                            checkMarkId={checkMarkId}
-                            onToggleComplete={doneLimitTask}
-                            onOpenImage={handleOpenImage}
-                            onOpenSubtasks={openSubtasks}
-                            onDeleteTask={requestDelete}
-                            isLocked={isLocked}
-                            isDeletingItem={isDeletingItem}
-                            onSaveEdit={handleSaveEdit}
-                        />
-                    ))}
-                </ul>
-            </div>
+  const handleOpenImage = useCallback((src: string) => setOpenImage(src), []);
+  const handleCloseImage = useCallback(() => setOpenImage(null), []);
 
-            <ModalImage src={openImage} onClose={handleCloseImage} />
+  return (
+    <div className="ubuntu-regular">
+      {/* popups */}
+      {popup && (
+        <Portal>
+          <div
+            className="fixed inset-0 bg-black/40 z-40"
+            onClick={() => setPopup(null)}
+          />
+          {popup === "doneLimit" && (
+            <PopupDoneLimit onClose={() => setPopup(null)} />
+          )}
+          {popup === "completed" && (
+            <PopupCompleted onClose={() => setPopup(null)} />
+          )}
+        </Portal>
+      )}
+      <h1 className="sekuya-regular mb-5 text-4xl sm:text-5xl">{t.tasks}</h1>
 
-            {isActive && failedTasks.length > 0 && (
-                <Portal>
-                    <button
-                        onClick={() => setIsFailedTasksOpen(true)}
-                        className="fixed bottom-6 right-6 z-30 rounded-full bg-red-600 px-4 py-2 text-sm text-black shadow-lg hover:bg-red-700 ubuntu-regular"
-                    >
-                        {t.btnFailed} ({failedTasks.length})
-                    </button>
-                </Portal>
-            )}
+      {activeTasks.length === 0 && <p>{t.taskText}</p>}
 
-            <SubtasksModal
-                isOpen={isOpenSubModal}
-                onClose={onClose}
-                selectedTask={selectedTask}
-                subtasksData={subtasksData}
-                toggleSubtask={toggleSubtask}
+      <div className="tasks-croll-area">
+        <ul className="flex flex-col">
+          {activeTasks.map((task, index) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              index={index}
+              checkMarkId={checkMarkId}
+              onToggleComplete={doneLimitTask}
+              onOpenImage={handleOpenImage}
+              onOpenSubtasks={openSubtasks}
+              onDeleteTask={requestDelete}
+              isLocked={isLocked}
+              isDeletingItem={isDeletingItem}
+              onSaveEdit={handleSaveEdit}
             />
+          ))}
+        </ul>
+      </div>
 
-            <FailedTasksPanel 
-                failedTasks={failedTasks}
-                isOpen={isFailedTasksOpen}
-                onClose={() => setIsFailedTasksOpen(false)}
-            />
-        </div>
-    )
+      <ModalImage src={openImage} onClose={handleCloseImage} />
+
+      {isActive && failedTasks.length > 0 && (
+        <Portal>
+          <button
+            onClick={() => setIsFailedTasksOpen(true)}
+            className="fixed bottom-6 right-6 z-30 rounded-full bg-red-600 px-4 py-2 text-sm text-black shadow-lg hover:bg-red-700 ubuntu-regular"
+          >
+            {t.btnFailed} ({failedTasks.length})
+          </button>
+        </Portal>
+      )}
+
+      <SubtasksModal
+        isOpen={isOpenSubModal}
+        onClose={onClose}
+        selectedTask={selectedTask}
+        subtasksData={subtasksData}
+        toggleSubtask={toggleSubtask}
+      />
+
+      <FailedTasksPanel
+        failedTasks={failedTasks}
+        isOpen={isFailedTasksOpen}
+        onClose={() => setIsFailedTasksOpen(false)}
+      />
+    </div>
+  );
 }
 
-export default Tasks; 
+export default Tasks;

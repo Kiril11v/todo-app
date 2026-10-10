@@ -1,17 +1,21 @@
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import { BrowserRouter } from 'react-router-dom'
-import { Provider } from "react-redux"
-import { store } from "./store/index.ts"
-import { ThemeProvider } from './context/ThemeProvider.tsx'
-import { LanguageProvider } from './context/LanguageProvider.tsx'
-import './index.css'
-import { StrictMode } from 'react'
+import { createRoot } from "react-dom/client";
+import { StrictMode } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
 
-const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element #root not found')
+import { store } from "./store/index";
 
-  createRoot(rootElement).render(
+import { ThemeProvider } from "./context/ThemeProvider";
+import { LanguageProvider } from "./context/LanguageProvider";
+
+import App from "./App";
+
+import "./index.css";
+
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Root element #root not found");
+
+createRoot(rootElement).render(
   <StrictMode>
     <Provider store={store}>
       <ThemeProvider>
@@ -22,5 +26,5 @@ if (!rootElement) throw new Error('Root element #root not found')
         </LanguageProvider>
       </ThemeProvider>
     </Provider>
-  </StrictMode>
-)
+  </StrictMode>,
+);

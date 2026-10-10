@@ -3,27 +3,27 @@ import { LanguageContext } from "./languageContext";
 import type { Language } from "./translations";
 
 const langMap: Record<Language, string> = {
-    ua: "uk",
-    en: "en",
-    pl: "pl",
+  ua: "uk",
+  en: "en",
+  pl: "pl",
 };
 
 interface LanguageProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-    const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<Language>("en");
 
-    const changeLanguage = (lang: Language) => setLanguage(lang);
+  const changeLanguage = (lang: Language) => setLanguage(lang);
 
-    useEffect(() => {
-        document.documentElement.lang = langMap[language];
-    }, [language]);
+  useEffect(() => {
+    document.documentElement.lang = langMap[language];
+  }, [language]);
 
-    return (
-        <LanguageContext.Provider value={{ language, changeLanguage }}>
-            {children}
-        </LanguageContext.Provider>
-    );
+  return (
+    <LanguageContext.Provider value={{ language, changeLanguage }}>
+      {children}
+    </LanguageContext.Provider>
+  );
 };

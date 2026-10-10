@@ -1,32 +1,36 @@
-import { useId } from "react"
+import { useId } from "react";
 
-function IconSaveToArchive ({ isArchiving = false }) {
-    const clipId = useId();
+function IconSaveToArchive({ isArchiving = false }) {
+  const clipId = useId();
 
-    return (
-        <svg className="w-6 h-6 btn-send-archive" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <clipPath id={clipId}>
-                    <rect x="0" y="0" width="1920" height="1920" />
-                </clipPath>
-            </defs>
+  return (
+    <svg
+      className="w-6 h-6 btn-send-archive"
+      viewBox="0 0 1920 1920"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <clipPath id={clipId}>
+          <rect x="0" y="0" width="1920" height="1920" />
+        </clipPath>
+      </defs>
 
-            <path
-                fill="currentColor"
-                d="M80 1237.33V661.333C80 605.368 125.369 560 181.333 560h352v160H240l.008 453.33 209.066 213.34H1470.93l209.06-213.34L1680 720h-293.33V560h352c55.96 0 101.33 45.368 101.33 101.333v511.997h16c35.35 0 64 28.66 64 64V1856c0 35.35-28.65 64-64 64H64c-35.346 0-64-28.65-64-64v-618.67c0-35.34 28.654-64 64-64h16Z"
-            />
+      <path
+        fill="currentColor"
+        d="M80 1237.33V661.333C80 605.368 125.369 560 181.333 560h352v160H240l.008 453.33 209.066 213.34H1470.93l209.06-213.34L1680 720h-293.33V560h352c55.96 0 101.33 45.368 101.33 101.333v511.997h16c35.35 0 64 28.66 64 64V1856c0 35.35-28.65 64-64 64H64c-35.346 0-64-28.65-64-64v-618.67c0-35.34 28.654-64 64-64h16Z"
+      />
 
-            <path
-                className="archive-arrow-ghost"
-                d="M1040 0v958.86l183.43-183.429 113.14 113.138L960 1265.14 583.431 888.569l113.138-113.138L880 958.86V0h160Z"
-            />
+      <path
+        className="archive-arrow-ghost"
+        d="M1040 0v958.86l183.43-183.429 113.14 113.138L960 1265.14 583.431 888.569l113.138-113.138L880 958.86V0h160Z"
+      />
 
-            <path
-                className={`archive-arrow-fill ${isArchiving ? "is-archiving" : ""}`}
-                d="M1040 0v958.86l183.43-183.429 113.14 113.138L960 1265.14 583.431 888.569l113.138-113.138L880 958.86V0h160Z"
-            />
-        </svg>
-    )
+      <path
+        className={`archive-arrow-fill ${isArchiving ? "is-archiving" : ""}`}
+        d="M1040 0v958.86l183.43-183.429 113.14 113.138L960 1265.14 583.431 888.569l113.138-113.138L880 958.86V0h160Z"
+      />
+    </svg>
+  );
 }
 
 export default IconSaveToArchive;

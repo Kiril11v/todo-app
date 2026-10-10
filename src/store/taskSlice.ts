@@ -46,39 +46,47 @@ const tasksSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    loadTasksRequest: (state) => { state.loading = true; },
+    loadTasksRequest: (state) => {
+      state.loading = true;
+    },
     loadTasksSuccess: (state, action: PayloadAction<Task[]>) => {
       state.loading = false;
 
       const tasks = action.payload;
 
       state.tasks = tasks
-      .filter(t => !t.completed_at && !t.archived_at)
-      .sort((a, b) => 
-        new Date(b.created_at).getTime() 
-        - new Date(a.created_at).getTime());
-      
+        .filter((t) => !t.completed_at && !t.archived_at)
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
+
       state.completedTasks = tasks
-      .filter(t => t.completed_at && !t.archived_at)
-      .sort((a, b) => 
-        new Date(b.completed_at as string).getTime()
-        - new Date(a.completed_at as string).getTime());
-      
+        .filter((t) => t.completed_at && !t.archived_at)
+        .sort(
+          (a, b) =>
+            new Date(b.completed_at as string).getTime() -
+            new Date(a.completed_at as string).getTime(),
+        );
+
       state.archivedTasks = tasks
-      .filter(t => t.archived_at)
-      .sort((a, b) => 
-        new Date(b.archived_at as string).getTime()
-        - new Date(a.archived_at as string).getTime());
+        .filter((t) => t.archived_at)
+        .sort(
+          (a, b) =>
+            new Date(b.archived_at as string).getTime() -
+            new Date(a.archived_at as string).getTime(),
+        );
     },
-    loadTasksFailure: (state, action: PayloadAction<string>) => { 
-      state.loading = false; 
+    loadTasksFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
       state.error = action.payload;
     },
 
-    createTaskRequest: (state, action: PayloadAction<CreateTaskPayload>) => { 
+    createTaskRequest: (state, action: PayloadAction<CreateTaskPayload>) => {
       state.loading = true;
 
-      const { tempId, title, deadline, imagePreview, subtasks } = action.payload;
+      const { tempId, title, deadline, imagePreview, subtasks } =
+        action.payload;
 
       const optimisticTask: Task = {
         id: tempId,
@@ -94,18 +102,21 @@ const tasksSlice = createSlice({
           title: s.title,
           is_optimistic: true,
         })),
-      
+
         created_at: new Date().toISOString(),
       };
 
       state.tasks.unshift(optimisticTask);
     },
 
-    createTaskSuccess: (state, action: PayloadAction<createTaskSuccessPayload>) => {
+    createTaskSuccess: (
+      state,
+      action: PayloadAction<createTaskSuccessPayload>,
+    ) => {
       state.loading = false;
       const { tempId, task, subtasks } = action.payload;
 
-      const index = state.tasks.findIndex(t => t.id === tempId);
+      const index = state.tasks.findIndex((t) => t.id === tempId);
       const realTask: Task = { ...task, subtasks: subtasks || [] };
 
       if (index !== -1) {
@@ -114,36 +125,39 @@ const tasksSlice = createSlice({
         state.tasks.unshift(realTask);
       }
     },
-    createTaskFailure: (state, action: PayloadAction<createTaskFailurePayload>) => { 
+    createTaskFailure: (
+      state,
+      action: PayloadAction<createTaskFailurePayload>,
+    ) => {
       state.loading = false;
       state.error = action.payload.error;
 
-      state.tasks = state.tasks.filter(t => t.id !== action.payload.tempId);
+      state.tasks = state.tasks.filter((t) => t.id !== action.payload.tempId);
     },
 
     completeTaskRequest: (state, action: PayloadAction<string>) => {
       state.loading = true;
 
       const id = action.payload;
-      const task = state.tasks.find(t => t.id === id);
+      const task = state.tasks.find((t) => t.id === id);
 
       if (!task) {
         state.loading = false;
         return;
       }
 
-      state.tasks = state.tasks.filter(t => t.id !== id);
+      state.tasks = state.tasks.filter((t) => t.id !== id);
       state.lastCompletedTask = task;
     },
     completeTaskSuccess: (state, action: PayloadAction<{ task: Task }>) => {
       state.loading = false;
       state.lastCompletedTask = null;
-      
+
       const task = action.payload.task;
-    
+
       state.completedTasks.unshift(task);
     },
-    completeTaskFailure: (state, action: PayloadAction<string>) => { 
+    completeTaskFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
 
@@ -153,25 +167,25 @@ const tasksSlice = createSlice({
       }
     },
 
-    deleteTaskRequest: (state, action: PayloadAction<string>) => { 
+    deleteTaskRequest: (state, action: PayloadAction<string>) => {
       state.loading = true;
 
       const id = action.payload;
-      const task = state.tasks.find(t => t.id === id);
+      const task = state.tasks.find((t) => t.id === id);
 
       if (!task) {
         state.loading = false;
         return;
       }
 
-      state.tasks = state.tasks.filter(t => t.id !== id);
+      state.tasks = state.tasks.filter((t) => t.id !== id);
       state.lastCompletedTask = task;
     },
     deleteTaskSuccess: (state, _action: PayloadAction<string>) => {
       state.loading = false;
       state.lastCompletedTask = null;
     },
-    deleteTaskFailure: (state, action: PayloadAction<string>) => { 
+    deleteTaskFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
 
@@ -181,28 +195,28 @@ const tasksSlice = createSlice({
       }
     },
 
-    editTaskRequest: (state, action: PayloadAction<EditTaskPayload>) => { 
+    editTaskRequest: (state, action: PayloadAction<EditTaskPayload>) => {
       state.loading = true;
       const { id, newText } = action.payload;
 
-      const task = state.tasks.find(t => t.id === id);
+      const task = state.tasks.find((t) => t.id === id);
 
       if (task) {
         state.taskBackup = { id: task.id, title: task.title };
         task.title = newText;
       } else {
         state.loading = false;
-      } 
+      }
     },
     editTaskSuccess: (state, _action: PayloadAction<EditTaskPayload>) => {
       state.loading = false;
       state.taskBackup = null;
     },
-    editTaskFailure: (state, action: PayloadAction<string>) => { 
+    editTaskFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
       if (state.taskBackup) {
-        const task = state.tasks.find(t => t.id === state.taskBackup!.id);
+        const task = state.tasks.find((t) => t.id === state.taskBackup!.id);
         if (task) {
           task.title = state.taskBackup.title;
         }
@@ -210,17 +224,17 @@ const tasksSlice = createSlice({
       }
     },
 
-    deleteCompletedTaskRequest: (state, action: PayloadAction<string>) => { 
+    deleteCompletedTaskRequest: (state, action: PayloadAction<string>) => {
       state.loading = true;
       const id = action.payload;
-      const task = state.completedTasks.find(t => t.id === id);
-      
+      const task = state.completedTasks.find((t) => t.id === id);
+
       if (!task) {
         state.loading = false;
         return;
       }
 
-      state.completedTasks = state.completedTasks.filter(t => t.id !== id);
+      state.completedTasks = state.completedTasks.filter((t) => t.id !== id);
       state.lastCompletedTask = task;
     },
     deleteCompletedTaskSuccess: (state, _action: PayloadAction<string>) => {
@@ -236,60 +250,67 @@ const tasksSlice = createSlice({
       }
     },
 
-    clearAllCompletedTaskRequest: (state) => { 
+    clearAllCompletedTaskRequest: (state) => {
       state.loading = true;
     },
     clearAllCompletedTaskSuccess: (state) => {
       state.loading = false;
       state.completedTasks = [];
     },
-    clearAllCompletedTaskFailure: (state, action: PayloadAction<string>) => { 
-      state.loading = false; 
-      state.error = action.payload; 
-    },
-
-    archiveTaskRequest: (state,  _action: PayloadAction<string>) => { 
-      state.loading = true;
-    },
-    archiveTaskSuccess: (state, action: PayloadAction<ArchiveTaskResultPayload>) => {
-      state.loading = false;
-      const { archivedTaskId, deletedTaskId } = action.payload;
-      
-      const task = state.completedTasks.find(t => t.id === archivedTaskId);
-
-      if (task) {
-        state.completedTasks = state.completedTasks.filter(t => t.id !== archivedTaskId);
-        state.archivedTasks.unshift(task);
-      }
-
-      if (deletedTaskId) {
-        state.archivedTasks = state.archivedTasks.filter(t => t.id !== deletedTaskId);
-      }
-    },
-    archiveTaskFailure: (state, action: PayloadAction<string>) => { 
+    clearAllCompletedTaskFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
 
-    deleteArchiveTaskRequest: (state, action: PayloadAction<string>) => { 
+    archiveTaskRequest: (state, _action: PayloadAction<string>) => {
+      state.loading = true;
+    },
+    archiveTaskSuccess: (
+      state,
+      action: PayloadAction<ArchiveTaskResultPayload>,
+    ) => {
+      state.loading = false;
+      const { archivedTaskId, deletedTaskId } = action.payload;
+
+      const task = state.completedTasks.find((t) => t.id === archivedTaskId);
+
+      if (task) {
+        state.completedTasks = state.completedTasks.filter(
+          (t) => t.id !== archivedTaskId,
+        );
+        state.archivedTasks.unshift(task);
+      }
+
+      if (deletedTaskId) {
+        state.archivedTasks = state.archivedTasks.filter(
+          (t) => t.id !== deletedTaskId,
+        );
+      }
+    },
+    archiveTaskFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    deleteArchiveTaskRequest: (state, action: PayloadAction<string>) => {
       state.loading = true;
       const id = action.payload;
-      const task = state.archivedTasks.find(t => t.id === id);
-      
+      const task = state.archivedTasks.find((t) => t.id === id);
+
       if (!task) {
         state.loading = false;
         return;
       }
 
-      state.archivedTasks = state.archivedTasks.filter(t => t.id !== id);
+      state.archivedTasks = state.archivedTasks.filter((t) => t.id !== id);
       state.lastCompletedTask = task;
     },
     deleteArchiveTaskSuccess: (state, _action: PayloadAction<string>) => {
       state.loading = false;
       state.lastCompletedTask = null;
     },
-    deleteArchiveTaskFailure: (state, action: PayloadAction<string>) => { 
-      state.loading = false; 
+    deleteArchiveTaskFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
       state.error = action.payload;
 
       if (state.lastCompletedTask) {
@@ -298,25 +319,25 @@ const tasksSlice = createSlice({
       }
     },
 
-    clearArchiveRequest: (state) => { 
-      state.loading = true; 
+    clearArchiveRequest: (state) => {
+      state.loading = true;
     },
     clearArchiveSuccess: (state) => {
       state.loading = false;
       state.archivedTasks = [];
     },
-    clearArchiveFailure: (state, action: PayloadAction<string>) => { 
+    clearArchiveFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
 
-    restoreArchiveRequest: (state, action: PayloadAction<string>) => { 
+    restoreArchiveRequest: (state, action: PayloadAction<string>) => {
       state.loading = true;
-      
-      const taskId = action.payload;
-      const idx = state.archivedTasks.findIndex(t => t.id === taskId);
 
-      if(idx === -1) {
+      const taskId = action.payload;
+      const idx = state.archivedTasks.findIndex((t) => t.id === taskId);
+
+      if (idx === -1) {
         state.loading = false;
         return;
       }
@@ -334,28 +355,31 @@ const tasksSlice = createSlice({
       state.tasks.unshift(optimisticTask);
       state.lastRestoredTask = { task: archivedTask, idx };
     },
-    restoreArchiveSuccess: (state, action: PayloadAction<ArchiveTaskSuccessPayload>) => {
+    restoreArchiveSuccess: (
+      state,
+      action: PayloadAction<ArchiveTaskSuccessPayload>,
+    ) => {
       state.loading = false;
       state.lastRestoredTask = null;
 
       const { task } = action.payload;
-      if(!task) return;
+      if (!task) return;
 
-      const indexRestoredTask = state.tasks.findIndex(t => t.id === task.id);
+      const indexRestoredTask = state.tasks.findIndex((t) => t.id === task.id);
       if (indexRestoredTask !== -1) state.tasks[indexRestoredTask] = task;
     },
-    restoreArchiveFailure: (state, action: PayloadAction<string>) => { 
-      state.loading = false; 
+    restoreArchiveFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
       state.error = action.payload;
 
       if (state.lastRestoredTask) {
         const { task, idx } = state.lastRestoredTask;
-        state.tasks = state.tasks.filter(t => t.id !== task.id);
+        state.tasks = state.tasks.filter((t) => t.id !== task.id);
         state.archivedTasks.splice(idx, 0, task);
         state.lastRestoredTask = null;
       }
     },
-  }
+  },
 });
 
 export const {

@@ -1,4 +1,4 @@
-.input-style{
+.input-style {
   width: 100%;
   padding: 10px;
   border-radius: 15px;
@@ -13,7 +13,7 @@
     background-color 0.25s ease;
 }
 
-.input-style::placeholder{
+.input-style::placeholder {
   color: var(--input-placeholder);
   transition: opacity 0.25s ease;
 }
@@ -26,30 +26,29 @@
   color: white;
 }
 
-.subtask-style{
+.subtask-style {
   background-color: burlywood;
 }
 
-.btn-style{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    width: 7rem;
-    padding: 12px 32px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 
+.btn-style {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  width: 7rem;
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
     background-color 0.25s ease,
     border-color 0.2s ease,
     color 0.25s ease,
     transform 0.2s ease;
 }
 
-.btn-style:hover{
+.btn-style:hover {
   transform: scale(1.1);
-  
 }
 
 .btn-style:active {
@@ -63,11 +62,11 @@
   box-shadow: none;
 }
 
-.attach-image{
+.attach-image {
   transition: transform 0.2s ease;
 }
 
-.attach-image:hover{
+.attach-image:hover {
   transform: scale(1.1);
 }
 
@@ -86,7 +85,7 @@
 }
 
 .btn-save {
-  background-color: var(--btn-save-bg); 
+  background-color: var(--btn-save-bg);
   color: var(--btn-save-text);
   border-color: var(--btn-save-hover);
 }
@@ -96,13 +95,13 @@
   color: var(--btn-save-text-hover);
 }
 
-.add-btn{
+.add-btn {
   transform-origin: center;
   background: transparent;
   cursor: pointer;
   transition:
-  transform 0.2s ease,
-  box-shadow 0.25s ease;
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
 }
 
 .add-btn:hover {
@@ -114,21 +113,21 @@
   box-shadow: none;
 }
 
-.add-btn-icon.spin{
-  animation: rotateScale 0.30s ease;
+.add-btn-icon.spin {
+  animation: rotateScale 0.3s ease;
 }
 
 @keyframes rotateScale {
   0% {
-    transform:  rotate(0deg);
+    transform: rotate(0deg);
   }
 
   100% {
-    transform:  rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
-.error-border{
+.error-border {
   border: red 1px solid;
   background-color: transparent;
   transition:
@@ -138,7 +137,7 @@
     box-shadow 0.25s ease;
 }
 
-.error-border:hover{
+.error-border:hover {
   background-color: red;
   color: white;
   transform: scale(1.05);
@@ -150,7 +149,7 @@
   box-shadow: none;
 }
 
-.popup-window{
+.popup-window {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -160,7 +159,7 @@
   min-width: 260px;
 }
 
-.popup-overlay{
+.popup-overlay {
   overflow: hidden;
   position: fixed;
   top: 25px;
@@ -170,24 +169,25 @@
 }
 
 @keyframes slideOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(120%);
-    }
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(120%);
+  }
 }
 
-.popup-overlay-created{
+.popup-overlay-created {
   border: 3px solid #0b22b3;
 }
 
-.popup-overlay-created::after { 
+.popup-overlay-created::after {
   content: "";
   position: absolute;
-  bottom: 0; left: 0;
+  bottom: 0;
+  left: 0;
   height: 4px;
   width: 0%;
   animation: fillTimer 3s linear forwards;
@@ -195,18 +195,23 @@
 }
 
 @keyframes fillTimer {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
-.popup-overlay-limit{
+.popup-overlay-limit {
   border: 3px solid rgb(162, 0, 0);
 }
 
-.popup-overlay-limit::after { 
+.popup-overlay-limit::after {
   content: "";
   position: absolute;
-  bottom: 0; left: 0;
+  bottom: 0;
+  left: 0;
   height: 4px;
   width: 0%;
   animation: fillTimer 3s linear forwards;
@@ -214,22 +219,26 @@
 }
 
 @keyframes fillTimer {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
-.popup-btn-tasks-limit{
+.popup-btn-tasks-limit {
   background: #903c3c;
   color: white;
   width: auto;
 }
 
-.popup-btn-tasks-create{
+.popup-btn-tasks-create {
   background: #b5c1d4;
   width: auto;
 }
 
-.subtask-style { 
+.subtask-style {
   background-color: var(--subtask-bg);
 }
 
@@ -239,8 +248,9 @@
   border-color: var(--btn-clear-border);
 }
 
-.btn-style:focus { 
-  outline: none; box-shadow: none;
+.btn-style:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .no-scrollbar {
@@ -249,25 +259,24 @@
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none;    
+  display: none;
 }
 
-
 .scroll-fade {
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        black 20px,
-        black calc(100% - 20px),
-        transparent 100%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        black 20px,
-        black calc(100% - 20px),
-        transparent 100%
-    );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 20px,
+    black calc(100% - 20px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 20px,
+    black calc(100% - 20px),
+    transparent 100%
+  );
 }
 
 .task-block {
@@ -279,8 +288,8 @@
   padding: 0.9rem 1.1rem;
   box-shadow:
     0px 0px 5px var(--card-shadow-light),
-     0px  0px 5px var(--card-shadow-dark);
-   transition:
+    0px 0px 5px var(--card-shadow-dark);
+  transition:
     transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }

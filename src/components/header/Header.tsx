@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import ModalSettings from "../modalSettings/ModalSettings";
+
 import { useLanguage } from "../../hooks/useLanguage";
 import { translations } from "../../context/translations";
+
+import ModalSettings from "../modalSettings/ModalSettings";
 
 import IconArrowLeftSwipe from "../../icons/IconArrowLeftSwipe";
 import IconArrowRightSwipe from "../../icons/IconArrowRightSwipe";
@@ -45,16 +47,24 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }: HeaderProps) {
   }, []);
 
   useEffect(() => {
-    const  handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      if (menuRef.current && !menuRef.current.contains(target) &&
-      buttonRef.current && !buttonRef.current.contains(target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
         setMenuOpen(false);
       }
 
-      if (modalRef.current && !modalRef.current.contains(target) &&
-      settingsButtonRef.current && !settingsButtonRef.current.contains(target)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(target) &&
+        settingsButtonRef.current &&
+        !settingsButtonRef.current.contains(target)
+      ) {
         setModalOpen(false);
         setRotate(false);
       }
@@ -65,117 +75,150 @@ function Header({ onPrev, onNext, canGoPrev, canGoNext }: HeaderProps) {
   }, []);
 
   return (
-  <nav className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-10 lang-${language}`}>
+    <nav
+      className={`fixed top-0 left-0 w-full bg-gray-800 shadow-xl sekuya-regular z-10 lang-${language}`}
+    >
       <div className="flex justify-between text-gray-200 my-4 sm:my-1">
-        <NavLink className="px-6 flex items-center gap-1 transition-transform text-white" to="/">
-          <img src={logoIcon} alt="logo"/>
+        <NavLink
+          className="px-6 flex items-center gap-1 transition-transform text-white"
+          to="/"
+        >
+          <img src={logoIcon} alt="logo" />
           <span className="font-semibold tracking-wide">ToDo</span>
         </NavLink>
 
         {/* Burger Menu */}
-        <button 
-        onClick={() => setMenuOpen((prev) => !prev)}
-        ref={buttonRef}
-        className="sm:hidden pr-10 mt-1"
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          ref={buttonRef}
+          className="sm:hidden pr-10 mt-1"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
           <div style={{ position: "relative", width: 30, height: 16 }}>
-            <span style={{
-              position: "absolute", left: 0, width: "100%", height: 4,
-              background: "currentColor", borderRadius: 2,
-              transition: mounted ? "all 0.3s ease" : "none",
-              top: menuOpen ? 7 : 0,
-              transform: menuOpen ? "rotate(45deg)" : "none",
-            }} />
-            <span style={{
-              position: "absolute", left: 0, width: "100%", height: 4,
-              background: "currentColor", borderRadius: 2,
-              transition: mounted ? "all 0.3s ease" : "none",
-              top: 7,
-              opacity: menuOpen ? 0 : 1,
-            }} />
-            <span style={{
-              position: "absolute", left: 0, width: "100%", height: 4,
-              background: "currentColor", borderRadius: 2,
-              transition: mounted ? "all 0.3s ease" : "none",
-              top: menuOpen ? 7 : 14,
-              transform: menuOpen ? "rotate(-45deg)" : "none",
-            }} />
+            <span
+              style={{
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                height: 4,
+                background: "currentColor",
+                borderRadius: 2,
+                transition: mounted ? "all 0.3s ease" : "none",
+                top: menuOpen ? 7 : 0,
+                transform: menuOpen ? "rotate(45deg)" : "none",
+              }}
+            />
+            <span
+              style={{
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                height: 4,
+                background: "currentColor",
+                borderRadius: 2,
+                transition: mounted ? "all 0.3s ease" : "none",
+                top: 7,
+                opacity: menuOpen ? 0 : 1,
+              }}
+            />
+            <span
+              style={{
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                height: 4,
+                background: "currentColor",
+                borderRadius: 2,
+                transition: mounted ? "all 0.3s ease" : "none",
+                top: menuOpen ? 7 : 14,
+                transform: menuOpen ? "rotate(-45deg)" : "none",
+              }}
+            />
           </div>
         </button>
 
         {menuOpen && (
-           <div className="fixed inset-0 bg-black/50 z-40 sm:hidden"
-           onClick={() => setMenuOpen(false)}>
-           </div> )}
-        <ul ref={menuRef} onClick={(e) => e.stopPropagation()} 
+          <div
+            className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+            onClick={() => setMenuOpen(false)}
+          ></div>
+        )}
+        <ul
+          ref={menuRef}
+          onClick={(e) => e.stopPropagation()}
           className={`flex-col sm:flex-row sm:flex gap-1 mr-2 items-center sm:bg-transparent rounded-md bg-emerald-100 text-black sm:text-white absolute sm:static top-17 right-0 duration-300 ease-in-out transition-all
           sm:opacity-100 sm:translate-y-0 sm:pointer-events-auto z-50 py-2
-          ${menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
-            <li>
-              <NavLink 
-                to="/" 
-                className="nav-item"
-                onClick={closeAll}>
-                  {t.inbox}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
-                to="/tasks" 
-                className="nav-item"
-                onClick={closeAll}>
-                  {t.tasks}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
-                to="/done"
-                className="nav-item"
-                onClick={closeAll}>
-                  {t.done}
-              </NavLink>
-            </li>
-            {/* btn settings */}
-            <li className="w-full">
-              <div className="px-3 mt-1 p-2">
-                <button 
-                ref={settingsButtonRef} 
-                className="cursor-pointer" 
+          ${menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}
+        >
+          <li>
+            <NavLink to="/" className="nav-item" onClick={closeAll}>
+              {t.inbox}
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/tasks" className="nav-item" onClick={closeAll}>
+              {t.tasks}
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/done" className="nav-item" onClick={closeAll}>
+              {t.done}
+            </NavLink>
+          </li>
+          {/* btn settings */}
+          <li className="w-full">
+            <div className="px-3 mt-1 p-2">
+              <button
+                type="button"
+                ref={settingsButtonRef}
+                className="cursor-pointer"
                 onClick={() => {
-                  setModalOpen((prev) => !prev); 
+                  setModalOpen((prev) => !prev);
                   setRotate((prev) => !prev);
-                }}>
-                  <IconSettings rotate={rotate}/>
-                </button>
-              </div>
-         
-              <div 
-                ref={modalRef}
-                className={`sm:absolute top-25 right-0 transition-all duration-500 ease-in-out
-                ${modalOpen 
-                ? "max-h-96 opacity-100 pointer-events-auto"
-                : "max-h-0 opacity-0 pointer-events-none"}`}
+                }}
               >
-                <div>
-                  <ModalSettings openArchive={() => {
-                    navigate("/archive");
+                <IconSettings rotate={rotate} />
+              </button>
+            </div>
+
+            <div
+              ref={modalRef}
+              className={`sm:absolute top-25 right-0 transition-all duration-500 ease-in-out
+                ${
+                  modalOpen
+                    ? "max-h-96 opacity-100 pointer-events-auto"
+                    : "max-h-0 opacity-0 pointer-events-none"
+                }`}
+            >
+              <div>
+                <ModalSettings
+                  openArchive={() => {
+                    void navigate("/archive");
                     closeAll();
-                    }}
-                  />
-                </div>
+                  }}
+                />
               </div>
-            </li>
+            </div>
+          </li>
         </ul>
       </div>
       <div>
         {canGoPrev && (
-          <button className="absolute top-85 left-5 btn-style-arrow-swipe hidden ml:block" onClick={onPrev}>
+          <button
+            type="button"
+            className="absolute top-85 left-5 btn-style-arrow-swipe hidden ml:block"
+            onClick={onPrev}
+          >
             <IconArrowLeftSwipe />
           </button>
         )}
         {canGoNext && (
-          <button className="absolute top-85 right-5 btn-style-arrow-swipe hidden ml:block" onClick={onNext}>
+          <button
+            type="button"
+            className="absolute top-85 right-5 btn-style-arrow-swipe hidden ml:block"
+            onClick={onNext}
+          >
             <IconArrowRightSwipe />
           </button>
         )}

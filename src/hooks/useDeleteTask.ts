@@ -1,32 +1,46 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 type DeleteAction = (id: string) => void;
 
 interface UseDeleteTaskResult {
-    requestDelete: (id: string) => void;
-    isLocked: boolean;
-    isDeletingItem: (id: string) => boolean;
+  requestDelete: (id: string) => void;
+  isLocked: boolean;
+  isDeletingItem: (id: string) => boolean;
 }
 
-export function useDeleteTask(deleteAction: DeleteAction, animationDuration = 500): UseDeleteTaskResult {
-    const [deletingId, setDeletingId] = useState<string | null>(null);
-    const isDeletingRef = useRef(false);
+export function useDeleteTask(
+  deleteAction: DeleteAction,
+  animationDuration = 500,
+): UseDeleteTaskResult {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const isDeletingRef = useRef(false);
 
-    const requestDelete = useCallback((id: string) => {
-        if (isDeletingRef.current) return;
+  const deleteActionRef = useRef(deleteAction);
+  useEffect(() => {
+    deleteActionRef.current = deleteAction;
+  });
 
-        isDeletingRef.current = true;
-        setDeletingId(id);
+  const requestDelete = useCallback(
+    (id: string) => {
+      if (isDeletingRef.current) return;
 
-        setTimeout(() => {
-            deleteAction(id);
-            setDeletingId(null);
-            isDeletingRef.current = false;
-        }, animationDuration);
-    }, [deleteAction, animationDuration]);
+      isDeletingRef.current = true;
+      setDeletingId(id);
 
-    const isLocked = deletingId !== null;
-    const isDeletingItem = useCallback((id: string) => deletingId === id, [deletingId]);
+      setTimeout(() => {
+        deleteActionRef.current(id);
+        setDeletingId(null);
+        isDeletingRef.current = false;
+      }, animationDuration);
+    },
+    [animationDuration],
+  );
 
-    return { requestDelete, isLocked, isDeletingItem }
-};
+  const isLocked = deletingId !== null;
+  const isDeletingItem = useCallback(
+    (id: string) => deletingId === id,
+    [deletingId],
+  );
+
+  return { requestDelete, isLocked, isDeletingItem };
+}

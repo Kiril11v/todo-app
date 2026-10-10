@@ -1,12 +1,12 @@
-.task-style{
- width: 100%;
+.task-style {
+  width: 100%;
 }
 
-.style-btn-delete { 
-  transition: 
-  background-color 0.25s ease,
-  border-color 0.25s ease,
-  transform 0.15s ease;
+.style-btn-delete {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.15s ease;
 }
 
 .style-btn-delete:hover {
@@ -14,10 +14,10 @@
 }
 
 .style-btn-delete:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
-.btn-send-archive{
+.btn-send-archive {
   color: var(--btn-send-archive);
 }
 
@@ -43,7 +43,7 @@
   transition: transform 0.6s ease;
 }
 
-.popup-overplay{
+.popup-overplay {
   overflow: hidden;
   position: fixed;
   top: 25px;
@@ -63,10 +63,11 @@
   }
 }
 
-.popup-overplay::after { 
+.popup-overplay::after {
   content: "";
   position: absolute;
-  bottom: 0; left: 0;
+  bottom: 0;
+  left: 0;
   height: 4px;
   width: 0%;
   animation: fillTimer 3s linear forwards;
@@ -74,32 +75,33 @@
 }
 
 @keyframes fillTimer {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
-
-
-.popup-btn-archive{
+.popup-btn-archive {
   background: rgb(77, 77, 75);
   color: white;
   width: auto;
 }
 
-.popup-btn-archive:hover{
+.popup-btn-archive:hover {
   background-color: rgb(62, 62, 57);
 }
 
-.popup-btn-restore{
+.popup-btn-restore {
   background: rgb(255, 136, 0);
   width: auto;
 }
 
-.done-border{
+.done-border {
   border-color: green;
   border-radius: 2rem;
-  background:
-    linear-gradient(var(--task-border-bg));
+  background: linear-gradient(var(--task-border-bg));
   overflow: hidden;
 }
 
@@ -133,6 +135,6 @@
   }
 }
 
-.done-icon{
+.done-icon {
   color: var(--icon-done);
 }

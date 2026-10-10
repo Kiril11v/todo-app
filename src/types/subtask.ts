@@ -1,4 +1,4 @@
-import type { Subtask } from './task.ts';
+import type { Subtask } from "./task.ts";
 
 export interface SubtaskItem extends Subtask {
   _prevCompleted?: boolean;
