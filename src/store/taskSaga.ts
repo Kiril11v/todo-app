@@ -52,6 +52,7 @@ const ARCHIVE_MAX_COUNT = 15;
 export interface ArchiveTaskResultPayload {
   archivedTaskId: string;
   deletedTaskId: string | null;
+  archivedAt: string;
 }
 
 function getErrorMessage(e: unknown): string {
@@ -292,11 +293,12 @@ function* deleteCompletedTaskSaga(
 function* archiveTaskSaga(action: ReturnType<typeof archiveTaskRequest>) {
   try {
     const id = action.payload;
+    const archivedAt = new Date().toISOString();
 
     const { error } = yield* call(async () => {
       return await supabase
         .from("tasks")
-        .update({ archived_at: new Date().toISOString() })
+        .update({ archived_at: archivedAt })
         .eq("id", id);
     });
 
@@ -330,7 +332,7 @@ function* archiveTaskSaga(action: ReturnType<typeof archiveTaskRequest>) {
       deletedTaskId = oldest.id;
     }
 
-    yield* put(archiveTaskSuccess({ archivedTaskId: id, deletedTaskId }));
+    yield* put(archiveTaskSuccess({ archivedTaskId: id, deletedTaskId, archivedAt }));
   } catch (e) {
     yield* put(archiveTaskFailure(getErrorMessage(e)));
   }

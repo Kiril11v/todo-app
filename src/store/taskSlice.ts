@@ -265,12 +265,9 @@ const tasksSlice = createSlice({
     archiveTaskRequest: (state, _action: PayloadAction<string>) => {
       state.loading = true;
     },
-    archiveTaskSuccess: (
-      state,
-      action: PayloadAction<ArchiveTaskResultPayload>,
-    ) => {
+    archiveTaskSuccess: (state, action: PayloadAction<ArchiveTaskResultPayload>) => {
       state.loading = false;
-      const { archivedTaskId, deletedTaskId } = action.payload;
+      const { archivedTaskId, deletedTaskId, archivedAt } = action.payload;
 
       const task = state.completedTasks.find((t) => t.id === archivedTaskId);
 
@@ -278,7 +275,7 @@ const tasksSlice = createSlice({
         state.completedTasks = state.completedTasks.filter(
           (t) => t.id !== archivedTaskId,
         );
-        state.archivedTasks.unshift(task);
+        state.archivedTasks.unshift({ ...task, archived_at: archivedAt });
       }
 
       if (deletedTaskId) {

@@ -40,6 +40,8 @@ function TaskArchiveItem({
   
   const imageUrl = task.image_url;
 
+  console.log(task.archived_at, task)
+
   return (
     <li className="border-2 text-left p-3 archive-border relative">
       <div className="flex justify-between items-start gap-2">
@@ -67,7 +69,7 @@ function TaskArchiveItem({
           {task.archived_at && (
             <div className="absolute lg:static left-5 top-1">
               <p className="text-sm text-gray-600">
-                {t.dateArchivedTask}{" "}
+                {t.dateArchivedTask}:{" "}
                 {new Date(task.archived_at).toLocaleDateString(language)}
               </p>
             </div>

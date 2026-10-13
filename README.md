@@ -1,73 +1,52 @@
-HEAD
-# React + TypeScript + Vite
+# TodoApp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A task manager for people who plan their day and set goals for themselves: tasks with deadlines, images and subtasks, plus archive and restore.
 
-Currently, two official plugins are available:
+[Live demo](https://todo-app-gamma-nine-52.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<p align="center">
+  <img src="docs/screenshots/main-desktop.png" width="600" alt="Desktop view" />
+  <img src="docs/screenshots/main-mobile.png" width="200" alt="Mobile view" />
+</p>
 
-## Expanding the ESLint configuration
+## About
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This app is built for everyday tasks. Each task can have a deadline, an image for visual context, and subtasks, which helps users break a bigger goal into clear, structured steps. It supports three languages and a light/dark theme, and gives instant feedback through popups and smooth animations.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- Create tasks with a deadline, an image and subtasks
+- Edit tasks and subtasks
+- Complete tasks, archive them and restore them to their original position
+- Deadline and completion date tracking
+- Overdue tasks are automatically moved to the "failed" list
+- Task limits (20 active, 15 completed) with a warning popup
+- Multilanguage: English, Polish, Ukrainian
+- Light / dark theme
+- Popups for different interactions (created, completed, restored, limit reached)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Demo
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Creating a task
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-# todo-app
+## Tech Stack
 
-aa1bae39c0ad7137d9b7899dcf6cc52838e530e5
+| Layer | Technologies |
+|---|---|
+| Frontend | React 19, TypeScript, Vite |
+| State management | Redux Toolkit, Redux-Saga, typed-redux-saga |
+| Backend | Supabase (Postgres, Auth, Storage) |
+| Styling | Tailwind CSS 4 |
+| Forms | React Final Form, Final Form Arrays |
+| UI | Headless UI, react-calendar, Embla Carousel |
+| Testing | Vitest, React Testing Library |
+| Deployment | Vercel |
+
+## Architecture
+
+- **Redux Toolkit + Redux-Saga.** Slices hold the state (`tasks`, `completedTasks`, `archivedTasks`, subtasks grouped by task id). Sagas handle all side effects: requests to Supabase, loading, and error handling.
+- **Optimistic updates.** The UI updates immediately and the server request runs in the background. New items are marked with an `is_optimistic` flag until the server confirms them, and the previous state is kept as a backup so it can be rolled back if the request fails.
+- **Typed end to end.** The project was migrated from JavaScript to TypeScript, with typed store state, actions and sagas.
+- **Component tests.** Pages and components are tested in isolation with mocked children and hooks (restore flow, limits, popups, validation).
+- **Supabase** is used as the backend (database for tasks and subtasks, image storage). Access is restricted per user with Row Level Security.
