@@ -27,9 +27,9 @@ This app is built for everyday tasks. Each task can have a deadline, an image fo
 ## Demo
 
 ### Creating task
-![Create only task](docs/gifs/create-only-task.mp4)
+![Create only task](docs/gifs/create-only-task.gif)
 
-![Create a task with timer]()
+![Create a task with timer](docs/gifs/gifs.zip)
 
 ![Create a task with subtask]()
 
