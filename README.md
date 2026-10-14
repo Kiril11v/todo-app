@@ -26,36 +26,32 @@ This app is built for everyday tasks. Each task can have a deadline, an image fo
 
 ## Demo
 
-### Creating task
-![Create only task](docs/gifs/create-only-task.gif)
-
-![Create a task with timer](docs/gifs/gifs.zip)
-
-![Create a task with subtask]()
-
-![Create a task with image]()
-
-![Create a task with all options]()
+### Creating task with timer, subtasks and image
+![Create a task](docs/gifs/create-task.gif)
 
 ### Editing task and subtask
-
-![Edit a task and subtask]()
+![Edit a task and subtask](docs/gifs/edit-task-subtask.gif)
 
 ### failed task panel
-
 ![emerssion panel for failed task]()
 
 ### Completing task and subtask
 ![Complete a task and subtask](docs/gifs/complete-task-subtask.gif)
 
 ### deleting task and subtask
-![Delete a task and subtask](docs/gifs/delete-task.gif)
+![Delete a task and subtask](docs/gifs/delete-task-subtask.gif)
 
-### archiving and restoring task
-![Archive and restore a task](docs/gifs/restore.gif)
+### archiving task
+![Archive a task](docs/gifs/archive-task.gif)
 
-### Theme and language switching
-![Theme and language](docs/gifs/theme-language.gif)
+### restoring task
+![Restore a task](docs/gifs/restore-task.gif)
+
+### Theme switching
+![Theme](docs/gifs/theme-switching.gif)
+
+### Language switching
+![Language](docs/gifs/language-switching.gif)
 
 ## Tech Stack
 
