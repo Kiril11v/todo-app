@@ -122,7 +122,7 @@ Copy `.env.example` to `.env` and fill in the values from **Project Settings →
 
 ```dotenv
 VITE_SUPABASE_URL=your-supabase-project-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-keNo sign-up required. Tasks are tied to your browser session, so clearing site data or switching browsers starts with an empty listy
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ### Run
